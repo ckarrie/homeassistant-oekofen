@@ -1,0 +1,10 @@
+{
+  "domain": "ha_oekofen",
+  "name": "Homeassistant Oekofen Integration",
+  "documentation": "https://github.com/ckarrie/homeassistant-oekofen/blob/main/README.md",
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "codeowners": [],
+  "requirements": ["oekofen-api==0.0.3"],
+  "version": "0.0.1"
+}
