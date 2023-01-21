@@ -12,7 +12,9 @@ DATA_SCHEMA = {
     vol.Required(CONF_HOST): str,
     vol.Required(CONF_PORT, default=oekofen_api.const.DEFAULT_PORT): vol.Coerce(int),
     vol.Required(CONF_PASSWORD): str,
-    vol.Required(CONF_SCAN_INTERVAL, default=oekofen_api.const.UPDATE_INTERVAL_SECONDS): vol.Coerce(int),
+    vol.Required(
+        CONF_SCAN_INTERVAL, default=oekofen_api.const.UPDATE_INTERVAL_SECONDS
+    ): vol.Coerce(int),
 }
 
 
@@ -31,18 +33,22 @@ class OekofenConfigFlow(config_entries.ConfigFlow, domain=const.DOMAIN):
         port = user_input[CONF_PORT]
         json_password = user_input[CONF_PASSWORD]
         update_interval = user_input[CONF_SCAN_INTERVAL]
-        client = oekofen_api.Oekofen(host=host, port=port, json_password=json_password, update_interval=update_interval)
+        client = oekofen_api.Oekofen(
+            host=host,
+            port=port,
+            json_password=json_password,
+            update_interval=update_interval,
+        )
         try:
             await client.update_data()
-
-        except Exception as e:
-            return await self._show_form({"base": str(e)})
+        except Exception as ex:
+            return await self._show_form({"base": str(ex)})
 
         await self.async_set_unique_id(client.get_uid())
         self._abort_if_unique_id_configured(updates=user_input)
 
-        model = await client.get_model()
-        title = f'Oekofen {model}'
+        model = client.get_model()
+        title = f"Oekofen {model}"
 
         return self.async_create_entry(title=title, data=user_input)
 

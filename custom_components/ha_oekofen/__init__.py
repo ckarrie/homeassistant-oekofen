@@ -6,10 +6,20 @@ from typing import Any
 
 import async_timeout
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import (
+    Platform,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_PORT,
+    CONF_SCAN_INTERVAL,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
 from homeassistant.helpers import device_registry as dr
 
 import oekofen_api
@@ -78,10 +88,10 @@ class HomeAssistantOekofenEntity(object):
         self.entry = entry
         self.entry_id = entry.entry_id
         self.unique_id = entry.unique_id
-        self.host: str = entry.data[const.ENTRY_KEY_HOST]
-        self._password = entry.data[const.ENTRY_KEY_JSON_PASSWORD]
-        self._port = entry.data[const.ENTRY_KEY_PORT]
-        self._update_interval = entry.data[const.ENTRY_KEY_UPDATE_INTERVAL]
+        self.host: str = entry.data[CONF_HOST]
+        self._password = entry.data[CONF_PASSWORD]
+        self._port = entry.data[CONF_PORT]
+        self._update_interval = entry.data[CONF_SCAN_INTERVAL]
 
         self.api: oekofen_api.Oekofen | None = None
         self.api_lock = asyncio.Lock()
@@ -91,7 +101,7 @@ class HomeAssistantOekofenEntity(object):
             host=self.host,
             json_password=self._password,
             port=self._port,
-            update_interval=self._update_interval
+            update_interval=self._update_interval,
         )
         return True
 
@@ -106,7 +116,9 @@ class HomeAssistantOekofenEntity(object):
             return await self.hass.async_add_executor_job(self.api.update_data)
 
 
-class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):
+class OekofenCoordinatorEntity(
+    CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]
+):
     """Defines a base Atag entity."""
 
     def __init__(
