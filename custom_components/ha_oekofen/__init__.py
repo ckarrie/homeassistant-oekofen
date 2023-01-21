@@ -21,6 +21,7 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 from homeassistant.helpers import device_registry as dr
+from homeassistant.exceptions import ConfigEntryNotReady
 
 import oekofen_api
 from . import const
@@ -45,6 +46,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     ha_client = HomeAssistantOekofenEntity(hass=hass, entry=entry)
 
+    try:
+        if not await ha_client.async_setup():
+            raise ConfigEntryNotReady
+    except Exception as ex:
+        raise ex
+
     coordinator = DataUpdateCoordinator[oekofen_api.Oekofen](
         hass,
         _LOGGER,
@@ -56,7 +63,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data first time
     await coordinator.async_config_entry_first_refresh()
 
-    hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = coordinator
+    print("[async_setup_entry] coordinator done")
+
+    hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = {
+        const.KEY_OEKOFENHOMEASSISTANT: ha_client,
+        const.KEY_COORDINATOR: coordinator,
+    }
 
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
@@ -83,6 +95,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 class HomeAssistantOekofenEntity(object):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
+        print("[HomeAssistantOekofenEntity.__init__] entry=%s" % entry)
         assert entry.unique_id
         self.hass = hass
         self.entry = entry
@@ -97,21 +110,28 @@ class HomeAssistantOekofenEntity(object):
         self.api_lock = asyncio.Lock()
 
     def _setup(self) -> bool:
+        print("[HomeAssistantOekofenEntity._setup] start...")
         self.api = oekofen_api.Oekofen(
             host=self.host,
             json_password=self._password,
             port=self._port,
             update_interval=self._update_interval,
         )
+        print("[HomeAssistantOekofenEntity._setup] ...done")
         return True
 
     async def async_setup(self) -> bool:
+        print("[HomeAssistantOekofenEntity.async_setup] start...")
         async with self.api_lock:
             if not await self.hass.async_add_executor_job(self._setup):
                 return False
         return True
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
+        print(
+            "[HomeAssistantOekofenEntity.async_api_update_data] start with api=%s"
+            % self.api
+        )
         async with self.api_lock:
             return await self.hass.async_add_executor_job(self.api.update_data)
 

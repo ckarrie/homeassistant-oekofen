@@ -16,7 +16,11 @@ from . import const, OekofenEntity
 OPERATION_LIST = [STATE_OFF, STATE_ECO, STATE_PERFORMANCE]
 
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
     """Initialize device from config entry."""
     coordinator = hass.data[const.DOMAIN][config_entry.entry_id][const.KEY_COORDINATOR]
     async_add_entities([OekofenWaterHeater(coordinator, Platform.WATER_HEATER)])

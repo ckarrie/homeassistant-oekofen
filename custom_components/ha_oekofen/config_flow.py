@@ -41,6 +41,7 @@ class OekofenConfigFlow(config_entries.ConfigFlow, domain=const.DOMAIN):
         )
         try:
             await client.update_data()
+            print("Finished oekofen_api.Oekofen client=%s" % client)
         except Exception as ex:
             return await self._show_form({"base": str(ex)})
 
