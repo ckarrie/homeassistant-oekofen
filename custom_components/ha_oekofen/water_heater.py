@@ -23,7 +23,12 @@ async def async_setup_entry(
 ) -> None:
     """Initialize device from config entry."""
     coordinator = hass.data[const.DOMAIN][config_entry.entry_id][const.KEY_COORDINATOR]
-    async_add_entities([OekofenWaterHeater(coordinator, Platform.WATER_HEATER)])
+    heating_circuits = coordinator.data.api.domains.get('hk', [])
+    entities = []
+    for hc in heating_circuits:
+        entity = OekofenWaterHeater(coordinator=coordinator, platform_id=Platform.WATER_HEATER, domain=hc)
+        entities.append(entity)
+    async_add_entities(entities)
     print("[water_heater.async_setup_entry] done %s" % coordinator)
 
 

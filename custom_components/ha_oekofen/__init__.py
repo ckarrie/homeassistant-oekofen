@@ -151,16 +151,17 @@ class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_a
     """Defines a base Oekofen entity."""
 
     def __init__(
-        self, coordinator: DataUpdateCoordinator[oekofen_api.Oekofen], platform_id: str
+        self, coordinator: DataUpdateCoordinator[oekofen_api.Oekofen], platform_id: str, domain: oekofen_api.Domain
     ) -> None:
         """Initialize the Atag entity."""
         super().__init__(coordinator)
 
-        print("[OekofenCoordinatorEntity.__init__] platform_id=%s" % platform_id)
+        print("[OekofenCoordinatorEntity.__init__] platform_id=%s, domain=%s" % (platform_id, domain))
 
         self._id = platform_id
+        self._domain = domain
         self._api_uid = coordinator.data.api.get_uid()
-        self._attr_name = f'{self._api_uid.title()} {self._id}'
+        self._attr_name = f'Oekofen {coordinator.data.api.get_model()} {coordinator.data.api.host}'
         self._attr_unique_id = f'{self._id}-{self._api_uid}'
         print("[OekofenCoordinatorEntity.__init__] _api_uid=%s" % self._api_uid)
 
