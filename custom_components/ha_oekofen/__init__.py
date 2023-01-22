@@ -31,7 +31,7 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
     # Platform.WATER_HEATER,
     Platform.SENSOR,
-    #Platform.BINARY_SENSOR,
+    Platform.BINARY_SENSOR,
 ]
 
 
@@ -51,7 +51,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     assert entry.unique_id
 
     # Fetch data
-    await ha_client.api.update_data()
+    # await ha_client.api.update_data()
 
     device_registry = dr.async_get(hass)
     model = ha_client.api.get_model()
@@ -149,6 +149,7 @@ class HAOekofenEntity(object):
             port=self._port,
             update_interval=self._update_interval,
         )
+        asyncio.run(self.api.update_data())
         return True
 
     def update_data(self):
