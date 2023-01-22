@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Callable
 
+from homeassistant.components.binary_sensor import BinarySensorEntityDescription, BinarySensorDeviceClass
 from homeassistant.components.sensor import SensorEntityDescription, SensorDeviceClass
 from homeassistant.const import PERCENTAGE, TEMP_CELSIUS
 from homeassistant.helpers.entity import EntityCategory
@@ -8,6 +9,12 @@ from homeassistant.helpers.entity import EntityCategory
 
 @dataclass
 class OekofenAttributeDescription(SensorEntityDescription):
+    value: Callable = lambda data: data
+    index: int = 0
+
+
+@dataclass
+class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
     value: Callable = lambda data: data
     index: int = 0
 
@@ -43,3 +50,10 @@ def get_pump_description(domain, attribute_key):
     )
 
 
+def get_pump_binary_description(domain, attribute_key) -> OekofenBinaryAttributeDescription:
+    return OekofenBinaryAttributeDescription(
+        key=f'{domain.name}{domain.index}.{attribute_key}',
+        name=f'{domain.name.upper()} {domain.index} Pump',
+        device_class=BinarySensorDeviceClass.POWER,
+        icon="mdi:pump",
+    )

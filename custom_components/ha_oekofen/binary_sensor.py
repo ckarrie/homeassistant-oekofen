@@ -23,7 +23,7 @@ async def async_setup_entry(
         entities.append(OekofenBinarySensor(
             coordinator=coordinator,
             oekofen_entity=ha_oekofen,
-            entity_description=entity.get_statetext_description(hc, 'L_pump'),
+            entity_description=entity.get_pump_binary_description(hc, 'L_pump'),
             domain=hc,
             attribute_key='L_pump'
         ))
@@ -31,13 +31,13 @@ async def async_setup_entry(
 
 
 class OekofenBinarySensor(HAOekofenCoordinatorEntity, BinarySensorEntity):
-    entity_description: entity.OekofenAttributeDescription
+    entity_description: entity.OekofenBinaryAttributeDescription
 
     def __init__(
             self,
             coordinator: DataUpdateCoordinator,
             oekofen_entity: HAOekofenEntity,
-            entity_description: entity.OekofenAttributeDescription,
+            entity_description: entity.OekofenBinaryAttributeDescription,
             domain: oekofen_api.Domain,
             attribute_key: str,
     ) -> None:
