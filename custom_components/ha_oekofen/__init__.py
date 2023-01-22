@@ -81,7 +81,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         config_entry_id=entry.entry_id,
         identifiers={(const.DOMAIN, entry.unique_id)},
         manufacturer="Oekofen",
-        name=ha_client.host,
+        name=ha_client.get_name(),
         model=coordinator.data.api.get_model(),
     )
 
@@ -173,6 +173,6 @@ class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_a
             identifiers={(const.DOMAIN, self._api_uid)},
             manufacturer="Oekofen",
             model=self.coordinator.data.api.get_model(),
-            name=f"Oekofen ({self.coordinator.data.api.host})",
+            name=self.coordinator.data.api.get_name(),
             sw_version=const.SW_VERSION,
         )
