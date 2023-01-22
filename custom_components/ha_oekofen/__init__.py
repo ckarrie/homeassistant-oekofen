@@ -184,7 +184,7 @@ class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen
 
     @property
     def device_info(self) -> DeviceInfo:
-        """Return the device information."""
+        """Adds Entity to Device"""
         return DeviceInfo(
             identifiers={(const.DOMAIN, self._oekofen_entity.unique_id)},
         )
