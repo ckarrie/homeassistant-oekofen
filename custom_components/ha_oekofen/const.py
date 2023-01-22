@@ -28,3 +28,9 @@ MODEL_ABBR = {
     'AIR': 'Pellematic Air',
 }
 
+L_PUMP_DOMAINS = {
+    'hk': 'L_pump',
+    #'pu',  # is % not bool
+    'ww': 'L_pump',
+    'circ': 'L_pummp'
+}

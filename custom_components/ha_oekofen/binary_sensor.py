@@ -6,7 +6,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from . import HAOekofenCoordinatorEntity, entity, HAOekofenEntity
-from .const import KEY_COORDINATOR, DOMAIN, KEY_OEKOFENHOMEASSISTANT
+from .const import KEY_COORDINATOR, DOMAIN, KEY_OEKOFENHOMEASSISTANT, L_PUMP_DOMAINS
 
 
 async def async_setup_entry(
@@ -17,16 +17,17 @@ async def async_setup_entry(
     ha_oekofen = hass.data[DOMAIN][entry.entry_id][KEY_OEKOFENHOMEASSISTANT]
     entities = []
 
-    # HK-Sensors
-    heating_circuits = ha_oekofen.api.domains.get('hk', [])
-    for hc in heating_circuits:
-        entities.append(OekofenBinarySensor(
-            coordinator=coordinator,
-            oekofen_entity=ha_oekofen,
-            entity_description=entity.get_pump_binary_description(hc, 'L_pump'),
-            domain=hc,
-            attribute_key='L_pump'
-        ))
+    # Pump Sensors
+    for pump_domain, attr_name in L_PUMP_DOMAINS.items():
+        domains = ha_oekofen.api.domains.get(pump_domain, [])
+        for domain in domains:
+            entities.append(OekofenBinarySensor(
+                coordinator=coordinator,
+                oekofen_entity=ha_oekofen,
+                entity_description=entity.get_pump_binary_description(domain, attr_name),
+                domain=domain,
+                attribute_key=attr_name
+            ))
     async_add_entries(entities)
 
 
