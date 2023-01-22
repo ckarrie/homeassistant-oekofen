@@ -12,3 +12,4 @@ ENTRY_KEY_HOST = "host"
 ENTRY_KEY_JSON_PASSWORD = "json_password"
 ENTRY_KEY_PORT = "port"
 ENTRY_KEY_UPDATE_INTERVAL = "update_interval"
+SW_VERSION = '1.0 Unknown Version'

@@ -82,7 +82,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         identifiers={(const.DOMAIN, entry.unique_id)},
         manufacturer="Oekofen",
         name=ha_client.host,
-        model=ha_client.api.get_model(),
+        model=coordinator.data.api.get_model(),
     )
 
     print("[async_setup_entry] device registered")
@@ -158,17 +158,18 @@ class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_a
 
         print("[OekofenCoordinatorEntity.__init__] platform_id=%s" % platform_id)
 
-        self._id = f'oce_{platform_id}'
-        self._attr_name = f'oce_{platform_id}'
-        self._attr_unique_id = f"{coordinator.data.get_uid()}-{atag_id}"  # changeme
+        self._id = platform_id
+        self._attr_name = const.DOMAIN.title()
+        self._api_uid = coordinator.data.api.get_uid()
+        self._attr_unique_id = f'{self._api_uid}'
 
     @property
     def device_info(self) -> DeviceInfo:
         """Return info for device registry."""
         return DeviceInfo(
-            identifiers={(const.DOMAIN, self.coordinator.api.get_uid())},  # changeme
-            manufacturer="Atag",  # changeme
-            model=self.coordinator.api.get_model(),  # changeme
-            name="Atag Thermostat",  # changeme
-            sw_version=self.coordinator.data.apiversion,  # changeme
+            identifiers={(const.DOMAIN, self._api_uid)},
+            manufacturer="Oekofen",
+            model=self.coordinator.data.api.get_model(),
+            name="Heating Circuit Thermostat",
+            sw_version=const.SW_VERSION,
         )
