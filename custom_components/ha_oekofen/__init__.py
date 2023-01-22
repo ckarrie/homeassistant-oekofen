@@ -159,9 +159,10 @@ class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_a
         print("[OekofenCoordinatorEntity.__init__] platform_id=%s" % platform_id)
 
         self._id = platform_id
-        self._attr_name = const.DOMAIN.title()
         self._api_uid = coordinator.data.api.get_uid()
-        self._attr_unique_id = f'{self._api_uid}'
+        self._attr_name = f'{self._api_uid.title()} {self._id}'
+        self._attr_unique_id = f'{self._id}-{self._api_uid}'
+        print("[OekofenCoordinatorEntity.__init__] _api_uid=%s" % self._api_uid)
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -170,6 +171,6 @@ class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_a
             identifiers={(const.DOMAIN, self._api_uid)},
             manufacturer="Oekofen",
             model=self.coordinator.data.api.get_model(),
-            name="Heating Circuit Thermostat",
+            name=f"Oekofen ({self.coordinator.data.api.host})",
             sw_version=const.SW_VERSION,
         )
