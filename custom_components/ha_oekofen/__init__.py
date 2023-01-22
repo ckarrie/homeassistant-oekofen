@@ -68,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data first time
     await coordinator.async_config_entry_first_refresh()
 
-    print("[async_setup_entry] coordinator done")
+    print("[async_setup_entry] coordinator done data=%", coordinator.data)
 
     hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = {
         const.KEY_OEKOFENHOMEASSISTANT: ha_client,
@@ -146,23 +146,20 @@ class HomeAssistantOekofenEntity(object):
             return await self.api.update_data()
 
 
-class OekofenCoordinatorEntity(
-    CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]
-):
-    """Defines a base Atag entity."""
+class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):
+    """Defines a base Oekofen entity."""
 
     def __init__(
-        self, coordinator: DataUpdateCoordinator[oekofen_api.Oekofen], atag_id: str
+        self, coordinator: DataUpdateCoordinator[oekofen_api.Oekofen], platform_id: str
     ) -> None:
         """Initialize the Atag entity."""
         super().__init__(coordinator)
 
-        print("[OekofenCoordinatorEntity.__init__] atag_id=%s" % atag_id)
-        print(dir(coordinator))
+        print("[OekofenCoordinatorEntity.__init__] platform_id=%s" % platform_id)
 
-        self._id = atag_id  # changeme
-        self._attr_name = const.DOMAIN.title()  # changeme
-        self._attr_unique_id = f"{coordinator.api.get_uid()}-{atag_id}"  # changeme
+        self._id = f'oce_{platform_id}'
+        self._attr_name = f'oce_{platform_id}'
+        self._attr_unique_id = f"{coordinator.data.get_uid()}-{atag_id}"  # changeme
 
     @property
     def device_info(self) -> DeviceInfo:
