@@ -8,7 +8,7 @@ from typing import Callable
 
 from homeassistant.components.sensor import SensorEntityDescription, RestoreSensor, SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import TEMP_CELSIUS
+from homeassistant.const import TEMP_CELSIUS, PERCENTAGE
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -42,6 +42,16 @@ def get_statetext_description(domain, attribute_key):
     )
 
 
+def get_pump_description(domain, attribute_key):
+    return OekofenAttributeDescription(
+        key=f'{domain.name}{domain.index}.{attribute_key}',
+        name=f'{domain.name.upper()} {domain.index} Pump',
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.POWER_FACTOR,
+        icon="mdi:pump",
+    )
+
+
 async def async_setup_entry(
         hass: HomeAssistant,
         config_entry: ConfigEntry,
@@ -71,6 +81,8 @@ async def async_setup_entry(
             attribute_key='L_flowtemp_act'
         ))
 
+
+
     # WW
     ww_circuits = ha_oekofen.api.domains.get('ww', [])
     for domain in ww_circuits:
@@ -82,7 +94,7 @@ async def async_setup_entry(
             attribute_key='L_statetext'
         ))
 
-    # PU
+    # PU (Puffer / Accu Data)
     pu_circuits = ha_oekofen.api.domains.get('pu', [])
     for domain in pu_circuits:
         entities.append(OekofenHKSensorEntity(
@@ -91,6 +103,27 @@ async def async_setup_entry(
             entity_description=get_statetext_description(domain, 'L_statetext'),
             domain=domain,
             attribute_key='L_statetext'
+        ))
+        entities.append(OekofenHKSensorEntity(
+            coordinator=coordinator,
+            oekofen_entity=ha_oekofen,
+            entity_description=get_pump_description(domain, 'L_pump'),
+            domain=domain,
+            attribute_key='L_pump'
+        ))
+        entities.append(OekofenHKSensorEntity(
+            coordinator=coordinator,
+            oekofen_entity=ha_oekofen,
+            entity_description=get_temperature_description(domain, 'L_tpo_act'),
+            domain=domain,
+            attribute_key='L_tpo_act'
+        ))
+        entities.append(OekofenHKSensorEntity(
+            coordinator=coordinator,
+            oekofen_entity=ha_oekofen,
+            entity_description=get_temperature_description(domain, 'L_tpm_act'),
+            domain=domain,
+            attribute_key='L_tpm_act'
         ))
 
     async_add_entities(entities)
