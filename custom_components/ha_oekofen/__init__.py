@@ -137,7 +137,7 @@ class HAOekofenEntity(object):
         self._password = entry.data[CONF_PASSWORD]
         self._port = entry.data[CONF_PORT]
         self._update_interval = entry.data[CONF_SCAN_INTERVAL]
-        self._raise_exceptions_on_update = entry.data[const.CONF_RAISE_EXCEPTION_ON_UPDATE]
+        self._raise_exceptions_on_update = entry.data.get(const.CONF_RAISE_EXCEPTION_ON_UPDATE, False)
 
         self.api: oekofen_api.Oekofen | None = None
         self.api_lock = asyncio.Lock()
