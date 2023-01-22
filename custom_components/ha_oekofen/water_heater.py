@@ -11,7 +11,7 @@ from homeassistant.const import ATTR_TEMPERATURE, STATE_OFF, Platform, UnitOfTem
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import const, OekofenCoordinatorEntity
+from . import const, HAOekofenCoordinatorEntity
 
 OPERATION_LIST = [STATE_OFF, STATE_ECO, STATE_PERFORMANCE]
 
@@ -26,13 +26,13 @@ async def async_setup_entry(
     heating_circuits = coordinator.data.api.domains.get('hk', [])
     entities = []
     for hc in heating_circuits:
-        entity = OekofenWaterHeater(coordinator=coordinator, platform_id=Platform.WATER_HEATER, domain=hc)
+        entity = HAOekofenWaterHeater(coordinator=coordinator, platform_id=Platform.WATER_HEATER, domain=hc)
         entities.append(entity)
     async_add_entities(entities)
     print("[water_heater.async_setup_entry] done %s" % coordinator)
 
 
-class OekofenWaterHeater(OekofenCoordinatorEntity, WaterHeaterEntity):
+class HAOekofenWaterHeater(HAOekofenCoordinatorEntity, WaterHeaterEntity):
     """Representation of an ATAG water heater."""
 
     _attr_operation_list = OPERATION_LIST
@@ -51,7 +51,7 @@ class OekofenWaterHeater(OekofenCoordinatorEntity, WaterHeaterEntity):
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
-        print("[water_heater.OekofenWaterHeater.async_set_temperature] with kwags %s" % kwargs)
+        print("[water_heater.HAOekofenWaterHeater.async_set_temperature] with kwags %s" % kwargs)
         if await self.coordinator.data.api.set_heating_circuit_temp(celsius=kwargs.get(ATTR_TEMPERATURE)):
             self.async_write_ha_state()
 

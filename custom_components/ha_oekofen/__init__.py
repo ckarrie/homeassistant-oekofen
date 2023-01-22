@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import logging
+from abc import abstractmethod
 from datetime import timedelta
 from typing import Any
 
@@ -13,7 +14,7 @@ from homeassistant.const import (
     CONF_PORT,
     CONF_SCAN_INTERVAL,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -28,7 +29,7 @@ from . import const
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
-    Platform.WATER_HEATER,
+    # Platform.WATER_HEATER,
     # Platform.SENSOR
 ]
 
@@ -47,7 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     assert entry.unique_id
 
-    ha_client = HomeAssistantOekofenEntity(hass=hass, entry=entry)
+    ha_client = HAOekofenEntity(hass, entry)
 
     try:
         if not await ha_client.async_setup():
@@ -68,7 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data first time
     await coordinator.async_config_entry_first_refresh()
 
-    # coordinator.data -> HomeAssistantOekofenEntity
+    # coordinator.data -> HAOekofenEntity
     print("[async_setup_entry] coordinator done data=%", coordinator.data.api)
 
     hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = {
@@ -77,14 +78,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     device_registry = dr.async_get(hass)
+    model = coordinator.data.api.get_model()
+    model_long = const.MODEL_ABBR.get(model, model)
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(const.DOMAIN, entry.unique_id)},
-        manufacturer="Oekofen",
+        manufacturer=const.MANUFACTURER,
         name=ha_client.api.get_name(),
-        model=coordinator.data.api.get_model(),
+        model=model_long,
     )
-
     print("[async_setup_entry] device registered")
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -103,14 +105,14 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-class HomeAssistantOekofenEntity(object):
+class HAOekofenEntity(object):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
-        print("[HomeAssistantOekofenEntity.__init__] entry=%s" % entry)
         assert entry.unique_id
         self.hass = hass
         self.entry = entry
         self.entry_id = entry.entry_id
         self.unique_id = entry.unique_id
+        self.device_name = entry.title
         self.host: str = entry.data[CONF_HOST]
         self._password = entry.data[CONF_PASSWORD]
         self._port = entry.data[CONF_PORT]
@@ -120,59 +122,59 @@ class HomeAssistantOekofenEntity(object):
         self.api_lock = asyncio.Lock()
 
     def _setup(self) -> bool:
-        print("[HomeAssistantOekofenEntity._setup] start...")
         self.api = oekofen_api.Oekofen(
             host=self.host,
             json_password=self._password,
             port=self._port,
             update_interval=self._update_interval,
         )
-        print("[HomeAssistantOekofenEntity._setup] ...done")
         return True
 
     async def async_setup(self) -> bool:
-        print("[HomeAssistantOekofenEntity.async_setup] start...")
         async with self.api_lock:
             if not await self.hass.async_add_executor_job(self._setup):
                 return False
         return True
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
-        print(
-            "[HomeAssistantOekofenEntity.async_api_update_data] start with api=%s"
-            % self.api
-        )
         async with self.api_lock:
-            # return await self.hass.async_add_executor_job(self.api.update_data)
             return await self.api.update_data()
 
 
-class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):
+class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):
     """Defines a base Oekofen entity."""
 
     def __init__(
-        self, coordinator: DataUpdateCoordinator[oekofen_api.Oekofen], platform_id: str, domain: oekofen_api.Domain
+        self, coordinator: DataUpdateCoordinator[oekofen_api.Oekofen], oekofen_entity: HAOekofenEntity
     ) -> None:
-        """Initialize the Atag entity."""
+        """Initialize the Oekofen entity."""
         super().__init__(coordinator)
+        self._oekofen_entity = oekofen_entity
+        self._name = oekofen_entity.device_name
+        self._unique_id = oekofen_entity.unique_id
+        #self._api_uid = coordinator.data.api.get_uid().replace('_', '-')
+        #self._attr_name = f'Oekofen {coordinator.data.api.get_model()} {domain.name} {domain.index}'
+        #self._attr_unique_id = f'{self._api_uid}-{domain.name}-{domain.index}'
+        #print("[HAOekofenCoordinatorEntity.__init__] _api_uid=%s" % self._api_uid)
 
-        print("[OekofenCoordinatorEntity.__init__] platform_id=%s, domain=%s" % (platform_id, domain))
+    @abstractmethod
+    @callback
+    def async_update_device(self) -> None:
+        """Update the Netgear device."""
 
-        self._id = platform_id
-        self._domain = domain
-        self._api_uid = coordinator.data.api.get_uid().replace('_', '-')
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self.async_update_device()
+        super()._handle_coordinator_update()
 
-        self._attr_name = f'Oekofen {coordinator.data.api.get_model()} {domain.name} {domain.index}'
-        self._attr_unique_id = f'{self._api_uid}-{domain.name}-{domain.index}'
-        print("[OekofenCoordinatorEntity.__init__] _api_uid=%s" % self._api_uid)
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
 
-    #@property
-    #def device_info(self) -> DeviceInfo:
-    #    """Return info for device registry."""
-    #    return DeviceInfo(
-    #        identifiers={(const.DOMAIN, self._api_uid)},
-    #        manufacturer="Oekofen",
-    #        model=self.coordinator.data.api.get_model(),
-    #        name=self.coordinator.data.api.get_name(),
-    #        sw_version=const.SW_VERSION,
-    #    )
+    @property
+    def name(self) -> str:
+        """Return the name."""
+        return self._name
+
