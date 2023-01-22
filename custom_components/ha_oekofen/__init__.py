@@ -139,7 +139,7 @@ class HAOekofenEntity(object):
     async def async_api_update_data(self) -> dict[str, Any] | None:
         async with self.api_lock:
             #return await self.api.update_data()
-            return await self.hass.async_add_executor_job(self.api.update_data())
+            return await self.hass.async_add_executor_job(await self.api.update_data())
             #return await self.hass.async_add_executor_job(self.api.update_data)
 
 
