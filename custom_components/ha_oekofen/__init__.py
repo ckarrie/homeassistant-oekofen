@@ -161,8 +161,9 @@ class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_a
         self._id = platform_id
         self._domain = domain
         self._api_uid = coordinator.data.api.get_uid()
-        self._attr_name = f'Oekofen {coordinator.data.api.get_model()} {coordinator.data.api.host}'
-        self._attr_unique_id = f'{self._id}-{self._api_uid}'
+
+        self._attr_name = f'Oekofen {coordinator.data.api.get_model()} {domain.name} {domain.index}'
+        self._attr_unique_id = f'{self._api_uid}_{domain.name}_{domain.index}'
         print("[OekofenCoordinatorEntity.__init__] _api_uid=%s" % self._api_uid)
 
     @property
