@@ -15,13 +15,16 @@ DATA_SCHEMA = {
     vol.Required(
         CONF_SCAN_INTERVAL, default=oekofen_api.const.UPDATE_INTERVAL_SECONDS
     ): vol.Coerce(int),
+    vol.Optional(
+        const.CONF_RAISE_EXCEPTION_ON_UPDATE, default=True
+    ): vol.Coerce(bool),
 }
 
 
 class OekofenConfigFlow(config_entries.ConfigFlow, domain=const.DOMAIN):
     """Config flow for Oekofen."""
 
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""

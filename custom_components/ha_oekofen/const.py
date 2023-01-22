@@ -14,6 +14,7 @@ ENTRY_KEY_PORT = "port"
 ENTRY_KEY_UPDATE_INTERVAL = "update_interval"
 SW_VERSION = '1.0 Unknown Version'
 MANUFACTURER = 'ÖkoFEN'
+CONF_RAISE_EXCEPTION_ON_UPDATE = 'raise_exception_on_update'
 MODEL_ABBR = {
     'PE': 'Pellematic PE',
     'PES': 'Pellematic PES',
