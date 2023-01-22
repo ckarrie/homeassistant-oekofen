@@ -151,6 +151,9 @@ class HAOekofenEntity(object):
         )
         return True
 
+    def update_data(self):
+        self.api.update_data()
+
     async def async_setup(self) -> bool:
         async with self.api_lock:
             if not await self.hass.async_add_executor_job(self._setup):
@@ -170,7 +173,8 @@ class HAOekofenEntity(object):
                 return None
             """
             #return await self.hass.async_add_executor_job(await self.api.update_data())
-            data = await self.hass.async_add_executor_job(self.api.update_data)
+            #data = await self.hass.async_add_executor_job(self.api.update_data)
+            data = await self.hass.async_add_executor_job(self.update_data)
             print("... calling async_api_update_data done with data %s" % data)
             return data
 
