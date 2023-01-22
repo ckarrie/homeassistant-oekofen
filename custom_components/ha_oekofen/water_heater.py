@@ -11,7 +11,7 @@ from homeassistant.const import ATTR_TEMPERATURE, STATE_OFF, Platform, UnitOfTem
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import const, OekofenEntity
+from . import const, OekofenCoordinatorEntity
 
 OPERATION_LIST = [STATE_OFF, STATE_ECO, STATE_PERFORMANCE]
 
@@ -26,7 +26,7 @@ async def async_setup_entry(
     async_add_entities([OekofenWaterHeater(coordinator, Platform.WATER_HEATER)])
 
 
-class OekofenWaterHeater(OekofenEntity, WaterHeaterEntity):
+class OekofenWaterHeater(OekofenCoordinatorEntity, WaterHeaterEntity):
     """Representation of an ATAG water heater."""
 
     _attr_operation_list = OPERATION_LIST

@@ -27,7 +27,10 @@ import oekofen_api
 from . import const
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = [Platform.WATER_HEATER, Platform.SENSOR]
+PLATFORMS = [
+    Platform.WATER_HEATER,
+    # Platform.SENSOR
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -51,6 +54,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             raise ConfigEntryNotReady
     except Exception as ex:
         raise ex
+
+    print("[async_setup_entry] ha_client.async_setup done")
 
     coordinator = DataUpdateCoordinator[oekofen_api.Oekofen](
         hass,
@@ -79,7 +84,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         model=ha_client.api.get_model(),
     )
 
+    print("[async_setup_entry] device registered")
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    print("[async_setup_entry] async_forward_entry_setups done")
 
     return True
 
@@ -133,7 +142,8 @@ class HomeAssistantOekofenEntity(object):
             % self.api
         )
         async with self.api_lock:
-            return await self.hass.async_add_executor_job(self.api.update_data)
+            # return await self.hass.async_add_executor_job(self.api.update_data)
+            return await self.api.update_data()
 
 
 class OekofenCoordinatorEntity(
@@ -147,17 +157,20 @@ class OekofenCoordinatorEntity(
         """Initialize the Atag entity."""
         super().__init__(coordinator)
 
+        print("[OekofenCoordinatorEntity.__init__] atag_id=%s" % atag_id)
+        print(dir(coordinator))
+
         self._id = atag_id  # changeme
         self._attr_name = const.DOMAIN.title()  # changeme
-        self._attr_unique_id = f"{coordinator.data.id}-{atag_id}"  # changeme
+        self._attr_unique_id = f"{coordinator.api.get_uid()}-{atag_id}"  # changeme
 
     @property
     def device_info(self) -> DeviceInfo:
         """Return info for device registry."""
         return DeviceInfo(
-            identifiers={(const.DOMAIN, self.coordinator.data.id)},  # changeme
+            identifiers={(const.DOMAIN, self.coordinator.api.get_uid())},  # changeme
             manufacturer="Atag",  # changeme
-            model="Atag One",  # changeme
+            model=self.coordinator.api.get_model(),  # changeme
             name="Atag Thermostat",  # changeme
             sw_version=self.coordinator.data.apiversion,  # changeme
         )
