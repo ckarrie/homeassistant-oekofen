@@ -68,7 +68,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data first time
     await coordinator.async_config_entry_first_refresh()
 
-    print("[async_setup_entry] coordinator done data=%", coordinator.data)
+    # coordinator.data -> HomeAssistantOekofenEntity
+    print("[async_setup_entry] coordinator done data=%", coordinator.data.api)
 
     hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = {
         const.KEY_OEKOFENHOMEASSISTANT: ha_client,
