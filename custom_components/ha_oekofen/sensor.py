@@ -94,7 +94,7 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
         if self.domain is None:
             return
 
-        data = self.domain.attributes.get(self.attribute_key)
+        data = self.domain.attributes.get(self.attribute_key).get_value()
         if data is None:
             self._value = None
             _LOGGER.debug(
