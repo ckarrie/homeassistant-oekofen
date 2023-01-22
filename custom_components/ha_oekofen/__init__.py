@@ -35,7 +35,31 @@ PLATFORMS = [
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Atag integration from a config entry."""
+    """Set up Oekofen integration from a config entry."""
+    ha_client = HAOekofenEntity(hass, entry)
+
+    try:
+        if not await ha_client.async_setup():
+            raise ConfigEntryNotReady
+    except Exception as ex:
+        raise ex
+
+    hass.data.setdefault(const.DOMAIN, {})
+    entry.async_on_unload(entry.add_update_listener(update_listener))
+
+
+
+    assert entry.unique_id
+    device_registry = dr.async_get(hass)
+    model = ha_client.api.get_model()
+    model_long = const.MODEL_ABBR.get(model, model)
+    device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(const.DOMAIN, entry.unique_id)},
+        manufacturer=const.MANUFACTURER,
+        name=ha_client.api.get_name(),
+        model=model_long,
+    )
 
     async def _async_update_data():
         """Update Oekofen client via Coordinator"""
@@ -46,24 +70,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 raise UpdateFailed(err) from err
         return ha_client
 
-    ha_client = HAOekofenEntity(hass, entry)
-    hass.data.setdefault(const.DOMAIN, {})
-    entry.async_on_unload(entry.add_update_listener(update_listener))
-
-    assert entry.unique_id
-
-    try:
-        if not await ha_client.async_setup():
-            raise ConfigEntryNotReady
-    except Exception as ex:
-        raise ex
-
-    print("[async_setup_entry] ha_client.async_setup done")
-
     coordinator = DataUpdateCoordinator[oekofen_api.Oekofen](
         hass,
         _LOGGER,
-        name=const.DOMAIN.title(),
+        name=f'{ha_client.api.get_name()} Coordinator',
         update_method=_async_update_data,
         update_interval=const.SCAN_INTERVAL,
     )
@@ -76,16 +86,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         const.KEY_COORDINATOR: coordinator,
     }
 
-    device_registry = dr.async_get(hass)
-    model = coordinator.data.api.get_model()
-    model_long = const.MODEL_ABBR.get(model, model)
-    device_registry.async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(const.DOMAIN, entry.unique_id)},
-        manufacturer=const.MANUFACTURER,
-        name=ha_client.api.get_name(),
-        model=model_long,
-    )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
@@ -138,7 +138,9 @@ class HAOekofenEntity(object):
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
         async with self.api_lock:
-            return await self.api.update_data()
+            #return await self.api.update_data()
+            return await self.hass.async_add_executor_job(self.api.update_data())
+            #return await self.hass.async_add_executor_job(self.api.update_data)
 
 
 class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):

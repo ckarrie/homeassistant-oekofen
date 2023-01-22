@@ -42,6 +42,7 @@ async def async_setup_entry(
                 attribute_key='L_statetext'
             )
         )
+    # WW
     ww_circuits = ha_oekofen.api.domains.get('ww', [])
     for ww in ww_circuits:
         entities.append(
@@ -74,7 +75,7 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
     ):
         entity_description = OekofenAttributeDescription(
             key=f'{domain.name}{domain.index}.{attribute_key}',
-            name=f'{domain.name.upper()} {domain.index}',
+            name=f'{domain.name.upper()} {domain.index} ',
             entity_category=EntityCategory.DIAGNOSTIC,
             native_unit_of_measurement=None,
             device_class=None,
@@ -85,7 +86,7 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
         super().__init__(coordinator, oekofen_entity)
         self.entity_description = entity_description
         self._name = f'{oekofen_entity.api.get_name()} {entity_description.name}'
-        self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-{entity_description.index}"
+        self._unique_id = f"{oekofen_entity.unique_id}-{domain.name}-{domain.index}-{attribute_key.lower()}"
         self._value: StateType | date | datetime | Decimal = None
         self.async_update_device()
 
