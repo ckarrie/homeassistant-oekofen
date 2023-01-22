@@ -182,3 +182,9 @@ class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen
         """Return the name."""
         return self._name
 
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return the device information."""
+        return DeviceInfo(
+            identifiers={(const.DOMAIN, self._oekofen_entity.unique_id)},
+        )
