@@ -52,7 +52,6 @@ class OekofenAttributeDescription(SensorEntityDescription):
 
 class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
     entity_description: OekofenAttributeDescription
-    domain: oekofen_api.Domain
 
     def __init__(
             self,
@@ -66,14 +65,15 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
             name=f'{domain.name.upper()} {domain.index}',
 
         )
+        self.domain = domain
+        self.attribute_key = attribute_key
         super().__init__(coordinator, oekofen_entity)
         self.entity_description = entity_description
         self._name = f'{oekofen_entity.api.get_name()} {entity_description.name}'
         self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-{entity_description.index}"
         self._value: StateType | date | datetime | Decimal = None
         self.async_update_device()
-        self.domain = domain
-        self.attribute_key = attribute_key
+
 
     @property
     def native_value(self):
