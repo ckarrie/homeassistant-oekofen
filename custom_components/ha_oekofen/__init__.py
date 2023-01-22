@@ -153,6 +153,7 @@ class HAOekofenEntity(object):
 
     def update_data(self):
         asyncio.run(self.api.update_data())
+        print("Last update %s" % self.api._last_fetch)
 
     async def async_setup(self) -> bool:
         async with self.api_lock:
@@ -176,8 +177,6 @@ class HAOekofenEntity(object):
             #data = await self.hass.async_add_executor_job(self.api.update_data)
             data = await self.hass.async_add_executor_job(self.update_data)
             print("... calling async_api_update_data done with data %s" % data)
-            return data
-
 
 
 class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):
