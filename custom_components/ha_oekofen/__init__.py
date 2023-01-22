@@ -81,7 +81,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         config_entry_id=entry.entry_id,
         identifiers={(const.DOMAIN, entry.unique_id)},
         manufacturer="Oekofen",
-        name=ha_client.get_name(),
+        name=ha_client.api.get_name(),
         model=coordinator.data.api.get_model(),
     )
 
