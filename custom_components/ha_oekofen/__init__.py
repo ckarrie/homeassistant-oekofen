@@ -48,6 +48,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
     assert entry.unique_id
+
+    # Fetch data
+    await ha_client.api.update_data()
+
     device_registry = dr.async_get(hass)
     model = ha_client.api.get_model()
     model_long = const.MODEL_ABBR.get(model, model)
@@ -126,7 +130,6 @@ class HAOekofenEntity(object):
             port=self._port,
             update_interval=self._update_interval,
         )
-        await self.api.update_data()  # neu
         return True
 
     async def async_setup(self) -> bool:
