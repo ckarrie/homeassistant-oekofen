@@ -26,6 +26,7 @@ class OekofenDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update data via library."""
         try:
+            print("[OekofenDataUpdateCoordinator] api=%s" % self.api)
             await self.api.update_data()
             data = self.api._data
             if data:
