@@ -35,3 +35,11 @@ L_PUMP_DOMAINS = {
     'ww': 'L_pump',
     'circ': 'L_pummp'
 }
+
+TEMP_SENSORS_BY_DOMAIN = {
+    'hk': ['L_roomtemp_act', 'L_roomtemp_set', 'L_flowtemp_act', 'L_flowtemp_set'],
+    'pu': ['L_tpo_act', 'L_tpo_set', 'L_tpm_act', 'L_tpm_set', 'L_pump_release'],
+    'ww': ['L_temp_set', 'L_ontemp_act', 'L_offtemp_act'],
+    'circ': ['L_ret_temp', 'L_release_temp'],
+    'pe': ['L_temp_act', 'L_temp_set', 'L_ext_temp', 'L_frt_temp_act', 'L_frt_temp_set', 'L_frt_temp_end', 'L_uw_release'],
+}

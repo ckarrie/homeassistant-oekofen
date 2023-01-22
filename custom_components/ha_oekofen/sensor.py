@@ -31,6 +31,21 @@ async def async_setup_entry(
     ha_oekofen = hass.data[const.DOMAIN][config_entry.entry_id][const.KEY_OEKOFENHOMEASSISTANT]
     entities = []
 
+    for domain_name, attribute_names in const.TEMP_SENSORS_BY_DOMAIN.items():
+        domains = ha_oekofen.api.domains.get(domain_name, [])
+        for domain in domains:
+            for attribute_name in attribute_names:
+                if not domain.attributes.get(attribute_name):
+                    print(f"Attribute {attribute_name} not found in domain {domain.name}")
+                    continue
+                entities.append(OekofenHKSensorEntity(
+                    coordinator=coordinator,
+                    oekofen_entity=ha_oekofen,
+                    entity_description=entity.get_temperature_description(domain, attribute_name),
+                    domain=domain,
+                    attribute_key=attribute_name
+                ))
+
     # HK-Sensors
     heating_circuits = ha_oekofen.api.domains.get('hk', [])
     for hc in heating_circuits:
@@ -41,16 +56,6 @@ async def async_setup_entry(
             domain=hc,
             attribute_key='L_statetext'
         ))
-
-        entities.append(OekofenHKSensorEntity(
-            coordinator=coordinator,
-            oekofen_entity=ha_oekofen,
-            entity_description=entity.get_temperature_description(hc, 'L_flowtemp_act'),
-            domain=hc,
-            attribute_key='L_flowtemp_act'
-        ))
-
-
 
     # WW
     ww_circuits = ha_oekofen.api.domains.get('ww', [])
@@ -79,20 +84,6 @@ async def async_setup_entry(
             entity_description=entity.get_pump_description(domain, 'L_pump'),
             domain=domain,
             attribute_key='L_pump'
-        ))
-        entities.append(OekofenHKSensorEntity(
-            coordinator=coordinator,
-            oekofen_entity=ha_oekofen,
-            entity_description=entity.get_temperature_description(domain, 'L_tpo_act'),
-            domain=domain,
-            attribute_key='L_tpo_act'
-        ))
-        entities.append(OekofenHKSensorEntity(
-            coordinator=coordinator,
-            oekofen_entity=ha_oekofen,
-            entity_description=entity.get_temperature_description(domain, 'L_tpm_act'),
-            domain=domain,
-            attribute_key='L_tpm_act'
         ))
 
     async_add_entities(entities)
