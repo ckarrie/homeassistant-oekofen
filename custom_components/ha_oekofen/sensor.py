@@ -6,6 +6,7 @@ from typing import Callable
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, RestoreSensor
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import TEMP_CELSIUS
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -41,6 +42,16 @@ async def async_setup_entry(
                 attribute_key='L_statetext'
             )
         )
+    ww_circuits = ha_oekofen.api.domains.get('ww', [])
+    for ww in ww_circuits:
+        entities.append(
+            OekofenHKSensorEntity(
+                coordinator=coordinator,
+                oekofen_entity=ha_oekofen,
+                domain=ww,
+                attribute_key='L_statetext'
+            )
+        )
 
     async_add_entities(entities)
 
@@ -65,6 +76,9 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
             key=f'{domain.name}{domain.index}.{attribute_key}',
             name=f'{domain.name.upper()} {domain.index}',
             entity_category=EntityCategory.DIAGNOSTIC,
+            native_unit_of_measurement=None,
+            device_class=None,
+            icon="mdi:text",
         )
         self.domain = domain
         self.attribute_key = attribute_key

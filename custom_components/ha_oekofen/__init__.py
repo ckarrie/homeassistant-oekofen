@@ -46,9 +46,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 raise UpdateFailed(err) from err
         return ha_client
 
-    assert entry.unique_id
-
     ha_client = HAOekofenEntity(hass, entry)
+    hass.data.setdefault(const.DOMAIN, {})
+    entry.async_on_unload(entry.add_update_listener(update_listener))
+
+    assert entry.unique_id
 
     try:
         if not await ha_client.async_setup():
@@ -69,9 +71,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data first time
     await coordinator.async_config_entry_first_refresh()
 
-    # coordinator.data -> HAOekofenEntity
-    print("[async_setup_entry] coordinator done data=%", coordinator.data.api)
-
     hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = {
         const.KEY_OEKOFENHOMEASSISTANT: ha_client,
         const.KEY_COORDINATOR: coordinator,
@@ -87,11 +86,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         name=ha_client.api.get_name(),
         model=model_long,
     )
-    print("[async_setup_entry] device registered")
-
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    print("[async_setup_entry] async_forward_entry_setups done")
 
     return True
 
@@ -103,6 +98,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.data[const.DOMAIN].pop(entry.entry_id)
     return unload_ok
+
+
+async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Handle options update."""
+    await hass.config_entries.async_reload(config_entry.entry_id)
 
 
 class HAOekofenEntity(object):
