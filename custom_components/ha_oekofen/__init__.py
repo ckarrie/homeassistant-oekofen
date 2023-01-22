@@ -166,13 +166,13 @@ class OekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_a
         self._attr_unique_id = f'{self._api_uid}-{domain.name}-{domain.index}'
         print("[OekofenCoordinatorEntity.__init__] _api_uid=%s" % self._api_uid)
 
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return info for device registry."""
-        return DeviceInfo(
-            identifiers={(const.DOMAIN, self._api_uid)},
-            manufacturer="Oekofen",
-            model=self.coordinator.data.api.get_model(),
-            name=self.coordinator.data.api.get_name(),
-            sw_version=const.SW_VERSION,
-        )
+    #@property
+    #def device_info(self) -> DeviceInfo:
+    #    """Return info for device registry."""
+    #    return DeviceInfo(
+    #        identifiers={(const.DOMAIN, self._api_uid)},
+    #        manufacturer="Oekofen",
+    #        model=self.coordinator.data.api.get_model(),
+    #        name=self.coordinator.data.api.get_name(),
+    #        sw_version=const.SW_VERSION,
+    #    )
