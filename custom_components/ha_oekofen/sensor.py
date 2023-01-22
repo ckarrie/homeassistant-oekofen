@@ -114,7 +114,7 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
             attribute_key: str,
     ) -> None:
         super().__init__(coordinator, oekofen_entity)
-        self.domain = entity_description.name
+        self.domain = domain
         self.attribute_key = attribute_key
         self.entity_description = entity_description
         self._name = f'{oekofen_entity.api.get_name()} {entity_description.name}'
