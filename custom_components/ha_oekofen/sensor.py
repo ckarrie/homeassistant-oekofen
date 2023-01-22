@@ -7,6 +7,7 @@ from typing import Callable
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, RestoreSensor
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.typing import StateType
@@ -63,7 +64,7 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
         entity_description = OekofenAttributeDescription(
             key=f'{domain.name}{domain.index}.{attribute_key}',
             name=f'{domain.name.upper()} {domain.index}',
-
+            entity_category=EntityCategory.DIAGNOSTIC,
         )
         self.domain = domain
         self.attribute_key = attribute_key
