@@ -152,7 +152,7 @@ class HAOekofenEntity(object):
         return True
 
     def update_data(self):
-        return await self.api.update_data()
+        asyncio.run(self.api.update_data())
 
     async def async_setup(self) -> bool:
         async with self.api_lock:
