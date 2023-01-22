@@ -30,7 +30,7 @@ from . import const
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
     # Platform.WATER_HEATER,
-    # Platform.SENSOR
+    Platform.SENSOR
 ]
 
 
