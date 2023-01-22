@@ -159,7 +159,7 @@ class HAOekofenEntity(object):
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
         async with self.api_lock:
-            print("calling async_api_update_data")
+            print("calling async_api_update_data...")
             #return await self.api.update_data()
             """
             try:
@@ -169,8 +169,11 @@ class HAOekofenEntity(object):
                     raise e
                 return None
             """
-            return await self.hass.async_add_executor_job(await self.api.update_data())
-            #return await self.hass.async_add_executor_job(self.api.update_data)
+            #return await self.hass.async_add_executor_job(await self.api.update_data())
+            data = await self.hass.async_add_executor_job(self.api.update_data)
+            print("... calling async_api_update_data done with data %s" % data)
+            return data
+
 
 
 class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):
