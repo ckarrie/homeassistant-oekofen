@@ -164,11 +164,13 @@ class OekofenBinarySensorEntity(HAOekofenCoordinatorEntity, BinarySensorEntity):
         self._attr_is_on = self.entity_description.value(data)
 
 
-class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
+class HAOekofenWaterHeaterEntity(WaterHeaterEntity):
     """Representation of an ATAG water heater."""
 
     _attr_operation_list = WATER_HEATER_SENSORS_OPERATION_LIST
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    coordinator: DataUpdateCoordinator
+    oekofen_entity: HAOekofenEntity
     entity_description: OekofenWaterHeaterAttributeDescription
 
     def __init__(
