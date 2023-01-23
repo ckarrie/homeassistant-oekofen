@@ -30,4 +30,19 @@ async def async_setup_entry(
                 )
                 entities.append(sensor_entity)
 
+    PE_ATTRIBUTES = ['L_br', 'L_ak', 'L_not', 'L_stb']  # move to const
+    pe_domain_indexes = ha_oekofen.api.data.get(f'pe_indexes')
+    for pe_index in pe_domain_indexes:
+        for attribute_name in PE_ATTRIBUTES:
+            sensor_entity = OekofenBinarySensorEntity(
+                coordinator=coordinator,
+                oekofen_entity=ha_oekofen,
+                entity_description=get_pump_binary_description(
+                    domain_name='pe',
+                    domain_index=pe_index,
+                    attribute_key=attribute_name
+                )
+            )
+            entities.append(sensor_entity)
+
     async_add_entries(entities)

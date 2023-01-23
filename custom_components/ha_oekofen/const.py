@@ -45,6 +45,27 @@ TEMP_SENSORS_BY_DOMAIN = {
     'pe': ['L_temp_act', 'L_temp_set', 'L_ext_temp', 'L_frt_temp_act', 'L_frt_temp_set', 'L_frt_temp_end', 'L_uw_release'],
 }
 
+STATE_SENSORS_BY_DOMAIN = {
+    'hk': 'L_statetext',
+    #'thirdparty': 'L_state',
+    'pu': 'L_statetext',
+    'ww': 'L_statetext',
+    'pe': 'L_statetext'
+}
+
+#
+STATE_CHOICE_SENSORS_BY_DOMAIN = {
+    'weather': ['oekomode_choice'],
+    'hk': ['L_pump_choice', 'mode_auto_choice', 'oekomode_choice'],
+    'ww': [
+        'L_pump_choice', 'time_prg_choice', 'mode_auto_choice',
+        'mode_dhw_choice', 'use_boiler_heat_choice', 'sensor_on_choice',
+        'sensor_off_choice', 'heat_once_choice', 'oekomode_choice'],
+    'circ': ['L_pummp_choice', 'time_prg_choice', 'mode_choice', ],
+    'pe': ['mode_choice']
+
+}
+
 
 WATER_HEATER_SENSORS_OPERATION_LIST = [STATE_OFF, STATE_ECO, STATE_PERFORMANCE]
 WATER_HEATER_SENSORS_BY_DOMAIN = {
@@ -57,4 +78,6 @@ WATER_HEATER_SENSORS_BY_DOMAIN = {
         'target_temp': 'temp_heat'
     }
 }
+
+
 

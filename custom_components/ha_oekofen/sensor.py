@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 _LOGGER = logging.getLogger(__name__)
 
 from . import const
-from .entity import OekofenHKSensorEntity, get_temperature_description
+from .entity import OekofenHKSensorEntity, get_temperature_description, get_statetext_description
 
 
 async def async_setup_entry(
@@ -36,6 +36,33 @@ async def async_setup_entry(
                     )
                 )
                 entities.append(sensor_entity)
-    print(f'Added {len(entities)} entities')
+
+    for domain_name, attribute_name in const.STATE_SENSORS_BY_DOMAIN.items():
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        for domain_index in domain_indexes:
+            sensor_entity = OekofenHKSensorEntity(
+                coordinator=coordinator,
+                oekofen_entity=ha_oekofen,
+                entity_description=get_statetext_description(
+                    domain_name=domain_name,
+                    domain_index=domain_index,
+                    attribute_key=attribute_name
+                )
+            )
+            entities.append(sensor_entity)
+
+    thirdparty_indexes = ha_oekofen.api.data.get(f'thirdparty_indexes', [])
+    for domain_index in thirdparty_indexes:
+        sensor_entity = OekofenHKSensorEntity(
+            coordinator=coordinator,
+            oekofen_entity=ha_oekofen,
+            entity_description=get_statetext_description(
+                domain_name='thirdparty',
+                domain_index=domain_index,
+                attribute_key='L_state'
+            )
+        )
+        entities.append(sensor_entity)
+
     # add to Homeassistant
     async_add_entities(entities)
