@@ -1,11 +1,11 @@
 from __future__ import annotations
+
 import asyncio
 import logging
-from abc import abstractmethod
-from datetime import timedelta
 from typing import Any
 
 import async_timeout
+import oekofen_api
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     Platform,
@@ -14,22 +14,19 @@ from homeassistant.const import (
     CONF_PORT,
     CONF_SCAN_INTERVAL,
 )
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
     DataUpdateCoordinator,
     UpdateFailed,
 )
-from homeassistant.helpers import device_registry as dr
-from homeassistant.exceptions import ConfigEntryNotReady
 
-import oekofen_api
 from . import const
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
-    # Platform.WATER_HEATER,
+    Platform.WATER_HEATER,
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
 ]
@@ -112,7 +109,6 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
     _LOGGER.debug("Migrating from version %s", config_entry.version)
 
     if config_entry.version == 1:
-
         new = {**config_entry.data}
         new.update({const.CONF_RAISE_EXCEPTION_ON_UPDATE: False})
 
@@ -164,6 +160,3 @@ class HAOekofenEntity(object):
         async with self.api_lock:
             data = await self.hass.async_add_executor_job(self.update_data)
             return data
-
-
-

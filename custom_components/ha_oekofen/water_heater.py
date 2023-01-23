@@ -11,9 +11,8 @@ from homeassistant.const import ATTR_TEMPERATURE, STATE_OFF, Platform, UnitOfTem
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import const, HAOekofenCoordinatorEntity
-
-OPERATION_LIST = [STATE_OFF, STATE_ECO, STATE_PERFORMANCE]
+from .const import DOMAIN, KEY_OEKOFENHOMEASSISTANT, KEY_COORDINATOR, WATER_HEATER_SENSORS_BY_DOMAIN
+from .entity import HAOekofenWaterHeaterEntity, get_waterheater_description
 
 
 async def async_setup_entry(
@@ -22,51 +21,38 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Initialize device from config entry."""
-    coordinator = hass.data[const.DOMAIN][config_entry.entry_id][const.KEY_COORDINATOR]
-    heating_circuits = coordinator.data.api.domains.get('hk', [])
+    coordinator = hass.data[DOMAIN][config_entry.entry_id][KEY_COORDINATOR]
+    ha_oekofen = hass.data[DOMAIN][config_entry.entry_id][KEY_OEKOFENHOMEASSISTANT]
+
+    """
+    # Pump Sensors
+    for domain_name, attribute_names in L_PUMP_BINARY_SENSORS_BY_DOMAIN.items():
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        for domain_index in domain_indexes:
+            for attribute_name in attribute_names:
+                sensor_entity = OekofenBinarySensorEntity(
+                    coordinator=coordinator,
+                    oekofen_entity=ha_oekofen,
+                    entity_description=get_pump_binary_description(
+                        domain_name=domain_name,
+                        domain_index=domain_index,
+                        attribute_key=attribute_name
+                    )
+                )
+                entities.append(sensor_entity)
+    """
+
     entities = []
-    for hc in heating_circuits:
-        entity = HAOekofenWaterHeater(coordinator=coordinator, platform_id=Platform.WATER_HEATER, domain=hc)
-        entities.append(entity)
+
+    for domain_name, domain_config in WATER_HEATER_SENSORS_BY_DOMAIN.items():
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        for domain_index in domain_indexes:
+            attribute_key = domain_config.get('current_temp')
+            entity_description = get_waterheater_description(domain_name, domain_index, attribute_key, domain_config)
+            entity = HAOekofenWaterHeaterEntity(coordinator=coordinator, oekofen_entity=ha_oekofen, entity_description=entity_description)
+            entities.append(entity)
+
     async_add_entities(entities)
     print("[water_heater.async_setup_entry] done %s" % coordinator)
 
 
-class HAOekofenWaterHeater(HAOekofenCoordinatorEntity, WaterHeaterEntity):
-    """Representation of an ATAG water heater."""
-
-    _attr_operation_list = OPERATION_LIST
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
-
-    @property
-    def current_temperature(self):
-        """Return the current temperature."""
-        return self.coordinator.data.api.get_heating_circuit_temp()
-
-    @property
-    def current_operation(self):
-        """Return current operation."""
-        operation = self.coordinator.data.api.get_heating_circuit_state()
-        return operation if operation in self.operation_list else STATE_OFF
-
-    async def async_set_temperature(self, **kwargs: Any) -> None:
-        """Set new target temperature."""
-        print("[water_heater.HAOekofenWaterHeater.async_set_temperature] with kwags %s" % kwargs)
-        if await self.coordinator.data.api.set_heating_circuit_temp(celsius=kwargs.get(ATTR_TEMPERATURE)):
-            self.async_write_ha_state()
-
-    @property
-    def target_temperature(self):
-        """Return the setpoint if water demand, otherwise return base temp (comfort level)."""
-        attr = self.coordinator.data.api.get_attribute('hk', 'L_flowtemp_set')
-        return attr.get_value()
-
-    @property
-    def max_temp(self) -> float:
-        """Return the maximum temperature."""
-        return 40.0
-
-    @property
-    def min_temp(self) -> float:
-        """Return the minimum temperature."""
-        return 15.0

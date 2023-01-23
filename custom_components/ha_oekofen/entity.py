@@ -4,11 +4,12 @@ import logging
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Callable
+from typing import Callable, Any
 
-from homeassistant.components.binary_sensor import BinarySensorEntityDescription, BinarySensorDeviceClass
+from homeassistant.components.binary_sensor import BinarySensorEntityDescription, BinarySensorDeviceClass, BinarySensorEntity
 from homeassistant.components.sensor import SensorEntityDescription, SensorDeviceClass, RestoreSensor
-from homeassistant.const import PERCENTAGE, TEMP_CELSIUS
+from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityEntityDescription, STATE_OFF, STATE_ON
+from homeassistant.const import PERCENTAGE, TEMP_CELSIUS, UnitOfTemperature, ATTR_TEMPERATURE
 from homeassistant.core import callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.typing import StateType
@@ -16,6 +17,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from . import HAOekofenEntity
 from .coordinator import HAOekofenCoordinatorEntity
+from .const import WATER_HEATER_SENSORS_OPERATION_LIST
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,6 +34,11 @@ class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
     index: int = 0
 
 
+@dataclass
+class OekofenWaterHeaterAttributeDescription(WaterHeaterEntityEntityDescription):
+    attr_config: dict = None
+
+
 def get_temperature_description(domain_name, domain_index, attribute_key):
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
@@ -42,10 +49,10 @@ def get_temperature_description(domain_name, domain_index, attribute_key):
     )
 
 
-def get_statetext_description(domain, attribute_key):
+def get_statetext_description(domain_name, domain_index, attribute_key):
     return OekofenAttributeDescription(
-        key=f'{domain.name}{domain.index}.{attribute_key}',
-        name=f'{domain.name.upper()} {domain.index}',
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=None,
         device_class=None,
@@ -53,22 +60,32 @@ def get_statetext_description(domain, attribute_key):
     )
 
 
-def get_pump_description(domain, attribute_key):
+def get_pump_percent_description(domain_name, domain_index, attribute_key):
     return OekofenAttributeDescription(
-        key=f'{domain.name}{domain.index}.{attribute_key}',
-        name=f'{domain.name.upper()} {domain.index} Pump',
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.POWER_FACTOR,
         icon="mdi:pump",
     )
 
 
-def get_pump_binary_description(domain, attribute_key) -> OekofenBinaryAttributeDescription:
+def get_pump_binary_description(domain_name, domain_index, attribute_key) -> OekofenBinaryAttributeDescription:
     return OekofenBinaryAttributeDescription(
-        key=f'{domain.name}{domain.index}.{attribute_key}',
-        name=f'{domain.name.upper()} {domain.index} Pump',
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
         device_class=BinarySensorDeviceClass.POWER,
         icon="mdi:pump",
+    )
+
+
+def get_waterheater_description(domain_name, domain_index, attribute_key, attr_config) -> OekofenWaterHeaterAttributeDescription:
+    return OekofenWaterHeaterAttributeDescription(
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
+        #device_class=BinarySensorDeviceClass.POWER,
+        icon="mdi:pump",
+        attr_config=attr_config,
     )
 
 
@@ -120,3 +137,91 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
             return
 
         self._value = self.entity_description.value(data)
+
+
+class OekofenBinarySensorEntity(HAOekofenCoordinatorEntity, BinarySensorEntity):
+    entity_description: OekofenBinaryAttributeDescription
+
+    def __init__(
+            self,
+            coordinator: DataUpdateCoordinator,
+            oekofen_entity: HAOekofenEntity,
+            entity_description: OekofenBinaryAttributeDescription
+    ) -> None:
+        super().__init__(coordinator, oekofen_entity)
+        self.entity_description = entity_description
+        self._name = f"{oekofen_entity.device_name} {entity_description.name}"
+        self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-{entity_description.index}"
+        self._attr_is_on: bool = False
+        self.async_update_device()
+
+    @callback
+    def async_update_device(self) -> None:
+        if self.coordinator.data is None:
+            return
+
+        data = self.coordinator.data.get(self.entity_description.key)
+        self._attr_is_on = self.entity_description.value(data)
+
+
+class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
+    """Representation of an ATAG water heater."""
+
+    _attr_operation_list = WATER_HEATER_SENSORS_OPERATION_LIST
+    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    entity_description: OekofenWaterHeaterAttributeDescription
+
+    def __init__(
+            self,
+            coordinator: DataUpdateCoordinator,
+            oekofen_entity: HAOekofenEntity,
+            entity_description: OekofenWaterHeaterAttributeDescription
+    ) -> None:
+        super().__init__(coordinator, oekofen_entity)
+        self.entity_description = entity_description
+        self._name = f"{oekofen_entity.device_name} {entity_description.name}"
+        self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-waterheater"
+        self.async_update_device()
+
+    def _get_value_from_other_key(self, attr):
+        current_operation_attr = self.entity_description.attr_config.get(attr)  # > mode_auto
+        domain, attr = self.entity_description.key.split('.')  # > hk1, temp_heat
+        new_key = f'{domain}.{current_operation_attr}'  # hk1.mode_auto
+        value = self.coordinator.data.get(new_key)
+        return value
+
+    @property
+    def current_temperature(self):
+        """Return the current temperature."""
+        value = self._get_value_from_other_key('current_temp')
+        return value
+
+    @property
+    def current_operation(self):
+        """Return current operation."""
+        value = self._get_value_from_other_key('current_operation')
+        print("current_operation=", value)
+        return STATE_ON
+
+    async def async_set_temperature(self, **kwargs: Any) -> None:
+        """Set new target temperature."""
+        print("[water_heater.HAOekofenWaterHeater.async_set_temperature] with kwags %s" % kwargs)
+        if await self.coordinator.data.api.set_heating_circuit_temp(celsius=kwargs.get(ATTR_TEMPERATURE)):
+            self.async_write_ha_state()
+
+    @property
+    def target_temperature(self):
+        """Return the setpoint if water demand, otherwise return base temp (comfort level)."""
+        value = self._get_value_from_other_key('target_temp')
+        return value
+
+    @property
+    def max_temp(self) -> float:
+        """Return the maximum temperature."""
+        return 40.0
+
+    @property
+    def min_temp(self) -> float:
+        """Return the minimum temperature."""
+        return 15.0
+

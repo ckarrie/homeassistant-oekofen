@@ -1,5 +1,6 @@
 import datetime
 
+from homeassistant.components.water_heater import STATE_ECO, STATE_OFF, STATE_PERFORMANCE
 from homeassistant.const import Platform
 
 DOMAIN = "ha_oekofen"
@@ -29,11 +30,11 @@ MODEL_ABBR = {
     'AIR': 'Pellematic Air',
 }
 
-L_PUMP_DOMAINS = {
-    'hk': 'L_pump',
-    #'pu',  # is % not bool
-    'ww': 'L_pump',
-    'circ': 'L_pummp'
+L_PUMP_BINARY_SENSORS_BY_DOMAIN = {
+    'hk': ['L_pump'],
+    # 'pu',  # is % not bool
+    'ww': ['L_pump'],
+    'circ': ['L_pummp'],
 }
 
 TEMP_SENSORS_BY_DOMAIN = {
@@ -43,3 +44,17 @@ TEMP_SENSORS_BY_DOMAIN = {
     'circ': ['L_ret_temp', 'L_release_temp'],
     'pe': ['L_temp_act', 'L_temp_set', 'L_ext_temp', 'L_frt_temp_act', 'L_frt_temp_set', 'L_frt_temp_end', 'L_uw_release'],
 }
+
+
+WATER_HEATER_SENSORS_OPERATION_LIST = [STATE_OFF, STATE_ECO, STATE_PERFORMANCE]
+WATER_HEATER_SENSORS_BY_DOMAIN = {
+    'hk': {
+        'min_temp': 'temp_heat',
+        'max_temp': 'temp_heat',
+        'current_temp': 'temp_heat',
+        'current_operation': 'mode_auto',
+        'set_temp': 'temp_heat',
+        'target_temp': 'temp_heat'
+    }
+}
+

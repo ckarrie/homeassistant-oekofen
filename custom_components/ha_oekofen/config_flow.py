@@ -1,10 +1,8 @@
 """Config flow for the Atag component."""
 import oekofen_api
 import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_PASSWORD, CONF_SCAN_INTERVAL
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from . import const
 
