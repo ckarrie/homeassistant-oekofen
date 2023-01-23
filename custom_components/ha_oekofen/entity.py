@@ -179,7 +179,9 @@ class HAOekofenWaterHeaterEntity(WaterHeaterEntity):
             oekofen_entity: HAOekofenEntity,
             entity_description: OekofenWaterHeaterAttributeDescription
     ) -> None:
-        super().__init__(coordinator, oekofen_entity)
+        super().__init__(coordinator)
+        self.coordinator = coordinator
+        self.oekofen_entity = oekofen_entity
         self.entity_description = entity_description
         self._name = f"{oekofen_entity.device_name} {entity_description.name}"
         self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-waterheater"
