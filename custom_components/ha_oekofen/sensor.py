@@ -91,6 +91,8 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
         if self.coordinator.data is None:
             return
 
+        print("[async_update_device] self.coordinator.data=%s" % self.coordinator.data)
+
         data = self.coordinator.data.get(self.entity_description.key)
         if data is None:
             self._value = None
