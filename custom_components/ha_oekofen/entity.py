@@ -181,7 +181,7 @@ class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
         self.entity_description = entity_description
         self._name = f"{oekofen_entity.device_name} {entity_description.name}"
         self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-waterheater"
-        self.async_update_device()
+        #self.async_update_device()
 
     def _get_value_from_other_key(self, attr):
         current_operation_attr = self.entity_description.attr_config.get(attr)  # > mode_auto
