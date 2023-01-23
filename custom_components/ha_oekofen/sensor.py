@@ -49,10 +49,25 @@ async def async_setup_entry(
 
     """
 
-    d = entity.get_temperature_description(domain_name='pu', domain_index=1, attribute_key='L_tpo_act')
-    ent = OekofenHKSensorEntity(coordinator=coordinator, oekofen_entity=ha_oekofen, entity_description=d)
-    entities.append(ent)
+    #d = entity.get_temperature_description(domain_name='pu', domain_index=1, attribute_key='L_tpo_act')
+    #ent = OekofenHKSensorEntity(coordinator=coordinator, oekofen_entity=ha_oekofen, entity_description=d)
+    #entities.append(ent)
 
+    for domain_name, attribute_names in const.TEMP_SENSORS_BY_DOMAIN.items():
+        domain_indexes = coordinator.data.get(f'{domain_name}_indexes')
+        for domain_index in domain_indexes:
+            for attribute_name in attribute_names:
+                sensor_entity = OekofenHKSensorEntity(
+                    coordinator=coordinator,
+                    oekofen_entity=ha_oekofen,
+                    entity_description=entity.get_temperature_description(
+                        domain_name=domain_name,
+                        domain_index=domain_index,
+                        attribute_key=attribute_name
+                    )
+                )
+                entities.append(sensor_entity)
+    # add to Homeassistant
     async_add_entities(entities)
 
 
@@ -90,8 +105,6 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
         """Update the Netgear device."""
         if self.coordinator.data is None:
             return
-
-        print("[async_update_device] self.coordinator.data=%s" % self.coordinator.data)
 
         data = self.coordinator.data.get(self.entity_description.key)
         if data is None:
