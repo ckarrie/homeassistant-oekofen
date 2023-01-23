@@ -178,6 +178,7 @@ class HAOekofenEntity(object):
             #data = await self.hass.async_add_executor_job(self.api.update_data)
             data = await self.hass.async_add_executor_job(self.update_data)
             print("... calling async_api_update_data done with data %s" % data)
+            return data
 
 
 class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):
@@ -191,10 +192,6 @@ class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen
         self._oekofen_entity = oekofen_entity
         self._name = oekofen_entity.device_name
         self._unique_id = oekofen_entity.unique_id
-        #self._api_uid = coordinator.data.api.get_uid().replace('_', '-')
-        #self._attr_name = f'Oekofen {coordinator.data.api.get_model()} {domain.name} {domain.index}'
-        #self._attr_unique_id = f'{self._api_uid}-{domain.name}-{domain.index}'
-        #print("[HAOekofenCoordinatorEntity.__init__] _api_uid=%s" % self._api_uid)
 
     @abstractmethod
     @callback

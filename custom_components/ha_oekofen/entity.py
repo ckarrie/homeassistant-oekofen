@@ -19,10 +19,10 @@ class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
     index: int = 0
 
 
-def get_temperature_description(domain, attribute_key):
+def get_temperature_description(domain_name, domain_index, attribute_key):
     return OekofenAttributeDescription(
-        key=f'{domain.name}{domain.index}.{attribute_key}',
-        name=f'{domain.name.upper()} {domain.index} {attribute_key}',
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         native_unit_of_measurement=TEMP_CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         icon="mdi:thermometer",

@@ -31,6 +31,7 @@ async def async_setup_entry(
     ha_oekofen = hass.data[const.DOMAIN][config_entry.entry_id][const.KEY_OEKOFENHOMEASSISTANT]
     entities = []
 
+    """
     for domain_name, attribute_names in const.TEMP_SENSORS_BY_DOMAIN.items():
         domains = ha_oekofen.api.domains.get(domain_name, [])
         for domain in domains:
@@ -46,45 +47,11 @@ async def async_setup_entry(
                     attribute_key=attribute_name
                 ))
 
-    # HK-Sensors
-    heating_circuits = ha_oekofen.api.domains.get('hk', [])
-    for hc in heating_circuits:
-        entities.append(OekofenHKSensorEntity(
-            coordinator=coordinator,
-            oekofen_entity=ha_oekofen,
-            entity_description=entity.get_statetext_description(hc, 'L_statetext'),
-            domain=hc,
-            attribute_key='L_statetext'
-        ))
+    """
 
-    # WW
-    ww_circuits = ha_oekofen.api.domains.get('ww', [])
-    for domain in ww_circuits:
-        entities.append(OekofenHKSensorEntity(
-            coordinator=coordinator,
-            oekofen_entity=ha_oekofen,
-            entity_description=entity.get_statetext_description(domain, 'L_statetext'),
-            domain=domain,
-            attribute_key='L_statetext'
-        ))
-
-    # PU (Puffer / Accu Data)
-    pu_circuits = ha_oekofen.api.domains.get('pu', [])
-    for domain in pu_circuits:
-        entities.append(OekofenHKSensorEntity(
-            coordinator=coordinator,
-            oekofen_entity=ha_oekofen,
-            entity_description=entity.get_statetext_description(domain, 'L_statetext'),
-            domain=domain,
-            attribute_key='L_statetext'
-        ))
-        entities.append(OekofenHKSensorEntity(
-            coordinator=coordinator,
-            oekofen_entity=ha_oekofen,
-            entity_description=entity.get_pump_description(domain, 'L_pump'),
-            domain=domain,
-            attribute_key='L_pump'
-        ))
+    d = entity.get_temperature_description(domain_name='pu', domain_index=1, attribute_key='L_tpo_act')
+    ent = OekofenHKSensorEntity(coordinator=coordinator, oekofen_entity=ha_oekofen, entity_description=d)
+    entities.append(ent)
 
     async_add_entities(entities)
 
@@ -97,15 +64,11 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
             coordinator: DataUpdateCoordinator,
             oekofen_entity: HAOekofenEntity,
             entity_description: entity.OekofenAttributeDescription,
-            domain: oekofen_api.Domain,
-            attribute_key: str,
     ) -> None:
         super().__init__(coordinator, oekofen_entity)
-        self.domain = domain
-        self.attribute_key = attribute_key
         self.entity_description = entity_description
-        self._name = f'{oekofen_entity.api.get_name()} {entity_description.name}'
-        self._unique_id = f"{oekofen_entity.unique_id}-{domain.name}-{domain.index}-{attribute_key.lower()}"
+        self._name = f"{oekofen_entity.device_name} {entity_description.name}"
+        self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-{entity_description.index}"
         self._value: StateType | date | datetime | Decimal = None
         self.async_update_device()
 
@@ -125,10 +88,10 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
     @callback
     def async_update_device(self) -> None:
         """Update the Netgear device."""
-        if self.domain is None:
+        if self.coordinator.data is None:
             return
 
-        data = self.domain.attributes.get(self.attribute_key).get_value()
+        data = self.coordinator.data.get(self.entity_description.key)
         if data is None:
             self._value = None
             _LOGGER.debug(
