@@ -164,13 +164,11 @@ class OekofenBinarySensorEntity(HAOekofenCoordinatorEntity, BinarySensorEntity):
         self._attr_is_on = self.entity_description.value(data)
 
 
-class HAOekofenWaterHeaterEntity(WaterHeaterEntity):
+class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
     """Representation of an ATAG water heater."""
 
     _attr_operation_list = WATER_HEATER_SENSORS_OPERATION_LIST
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
-    coordinator: DataUpdateCoordinator
-    oekofen_entity: HAOekofenEntity
     entity_description: OekofenWaterHeaterAttributeDescription
 
     def __init__(
@@ -179,13 +177,11 @@ class HAOekofenWaterHeaterEntity(WaterHeaterEntity):
             oekofen_entity: HAOekofenEntity,
             entity_description: OekofenWaterHeaterAttributeDescription
     ) -> None:
-        super().__init__()
-        self.coordinator = coordinator
-        self.oekofen_entity = oekofen_entity
+        super().__init__(coordinator, oekofen_entity)
         self.entity_description = entity_description
         self._name = f"{oekofen_entity.device_name} {entity_description.name}"
         self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-waterheater"
-        #self.async_update_device()
+        self.async_update_device()
 
     def _get_value_from_other_key(self, attr):
         current_operation_attr = self.entity_description.attr_config.get(attr)  # > mode_auto
