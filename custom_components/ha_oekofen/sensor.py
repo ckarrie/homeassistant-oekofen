@@ -52,9 +52,9 @@ async def async_setup_entry(
     #d = entity.get_temperature_description(domain_name='pu', domain_index=1, attribute_key='L_tpo_act')
     #ent = OekofenHKSensorEntity(coordinator=coordinator, oekofen_entity=ha_oekofen, entity_description=d)
     #entities.append(ent)
-    
+
     print("[sensor.async_setup_entry] coordinator.data=", coordinator.data)
-    print("[sensor.async_setup_entry] ha_oekofen.data=", ha_oekofen.data)
+    #print("[sensor.async_setup_entry] ha_oekofen.data=", ha_oekofen.data)
     print("[sensor.async_setup_entry] ha_oekofen.api.data=", ha_oekofen.api.data)
 
     for domain_name, attribute_names in const.TEMP_SENSORS_BY_DOMAIN.items():
