@@ -67,6 +67,7 @@ async def async_setup_entry(
                     )
                 )
                 entities.append(sensor_entity)
+    print(f'Added {len(entities)} entities')
     # add to Homeassistant
     async_add_entities(entities)
 
