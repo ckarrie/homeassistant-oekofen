@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 _LOGGER = logging.getLogger(__name__)
 
 from . import const
-from .entity import OekofenHKSensorEntity, get_temperature_description, get_statetext_description
+from .entity import OekofenHKSensorEntity, get_temperature_description, get_statetext_description, get_percentage_description
 
 
 async def async_setup_entry(
@@ -63,6 +63,18 @@ async def async_setup_entry(
             )
         )
         entities.append(sensor_entity)
+
+    # Modulation
+    pe_indexes = ha_oekofen.api.data.get(f'pe_indexes', [])
+    for domain_index in pe_indexes:
+        mod_descr = get_percentage_description(domain_name='pe', domain_index=domain_index, attribute_key='L_modulation')
+        mod_descr.icon = 'mdi:chart-line-variant'
+        mod_entity = OekofenHKSensorEntity(
+            coordinator=coordinator,
+            oekofen_entity=ha_oekofen,
+            entity_description=mod_descr,
+        )
+        entities.append(mod_entity)
 
     # add to Homeassistant
     async_add_entities(entities)

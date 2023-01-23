@@ -70,12 +70,30 @@ def get_pump_percent_description(domain_name, domain_index, attribute_key):
     )
 
 
+def get_percentage_description(domain_name, domain_index, attribute_key):
+    return OekofenAttributeDescription(
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.POWER_FACTOR,
+    )
+
+
 def get_pump_binary_description(domain_name, domain_index, attribute_key) -> OekofenBinaryAttributeDescription:
     return OekofenBinaryAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
         device_class=BinarySensorDeviceClass.POWER,
         icon="mdi:pump",
+    )
+
+
+def get_binary_description(domain_name, domain_index, attribute_key) -> OekofenBinaryAttributeDescription:
+    return OekofenBinaryAttributeDescription(
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        device_class=BinarySensorDeviceClass.POWER,
+        icon="mdi:electric-switch",
     )
 
 

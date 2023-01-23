@@ -3,7 +3,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import KEY_COORDINATOR, DOMAIN, KEY_OEKOFENHOMEASSISTANT, L_PUMP_BINARY_SENSORS_BY_DOMAIN
-from .entity import get_pump_binary_description, OekofenBinarySensorEntity
+from .entity import get_pump_binary_description, OekofenBinarySensorEntity, get_binary_description
 
 
 async def async_setup_entry(
@@ -37,7 +37,7 @@ async def async_setup_entry(
             sensor_entity = OekofenBinarySensorEntity(
                 coordinator=coordinator,
                 oekofen_entity=ha_oekofen,
-                entity_description=get_pump_binary_description(
+                entity_description=get_binary_description(
                     domain_name='pe',
                     domain_index=pe_index,
                     attribute_key=attribute_name
