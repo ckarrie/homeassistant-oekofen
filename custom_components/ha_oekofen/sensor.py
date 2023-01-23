@@ -53,7 +53,11 @@ async def async_setup_entry(
     #ent = OekofenHKSensorEntity(coordinator=coordinator, oekofen_entity=ha_oekofen, entity_description=d)
     #entities.append(ent)
 
+    await coordinator.async_update_data()
+
     print("[sensor.async_setup_entry] coordinator.data=", coordinator.data)
+    print("[sensor.async_setup_entry] ha_oekofen.data=", ha_oekofen.data)
+    print("[sensor.async_setup_entry] ha_oekofen.api.data=", ha_oekofen.api.data)
 
     for domain_name, attribute_names in const.TEMP_SENSORS_BY_DOMAIN.items():
         domain_indexes = coordinator.data.get(f'{domain_name}_indexes')
