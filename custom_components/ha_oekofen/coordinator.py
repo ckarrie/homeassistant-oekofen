@@ -1,39 +1,55 @@
 """Coordinator for Oekofen integration."""
 
 import logging
+from abc import abstractmethod
 
-import aiohttp
 import oekofen_api
+from homeassistant.core import callback
+from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-
-from .const import DOMAIN, SCAN_INTERVAL
+from . import HAOekofenEntity
+from .const import DOMAIN
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
-class OekofenDataUpdateCoordinator(DataUpdateCoordinator):
-    """Class to manage fetching data from the API."""
+class HAOekofenCoordinatorEntity(CoordinatorEntity[DataUpdateCoordinator[oekofen_api.Oekofen]]):
+    """Defines a base Oekofen entity."""
 
-    def __init__(self, hass: HomeAssistant, client: oekofen_api.Oekofen) -> None:
-        """Initialize."""
-        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
-        self.api = client
-        self.update_method = self._async_update_data
-        self.data = {}
+    def __init__(
+            self, coordinator: DataUpdateCoordinator[oekofen_api.Oekofen], oekofen_entity: HAOekofenEntity
+    ) -> None:
+        """Initialize the Oekofen entity."""
+        super().__init__(coordinator)
+        self._oekofen_entity = oekofen_entity
+        self._name = oekofen_entity.device_name
+        self._unique_id = oekofen_entity.unique_id
 
-    async def _async_update_data(self):
-        """Update data via library."""
-        try:
-            print("[OekofenDataUpdateCoordinator] api=%s" % self.api)
-            await self.api.update_data()
-            data = self.api._data
-            if data:
-                self.data.update(**self.api._data)
-            return self.data
-        except (
-            aiohttp.ClientConnectorError,
-            aiohttp.ClientResponseError,
-        ) as error:
-            raise UpdateFailed(error) from error
+    @abstractmethod
+    @callback
+    def async_update_device(self) -> None:
+        """Update the Netgear device."""
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self.async_update_device()
+        super()._handle_coordinator_update()
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        return self._unique_id
+
+    @property
+    def name(self) -> str:
+        """Return the name."""
+        return self._name
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Adds Entity to Device"""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._oekofen_entity.unique_id)},
+        )
