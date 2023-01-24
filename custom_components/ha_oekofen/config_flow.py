@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 
 """Config flow for the Atag component."""
@@ -29,6 +30,12 @@ class OekofenConfigFlow(config_entries.ConfigFlow, domain=const.DOMAIN):
     """Config flow for Oekofen."""
 
     VERSION = 2
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> OekofenOptionsFlow:
+        """Get the options flow for the Flux LED component."""
+        return OekofenOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
