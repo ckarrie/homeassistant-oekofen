@@ -134,6 +134,7 @@ class HAOekofenEntity(object):
         self._port = entry.data[CONF_PORT]
         self._update_interval = entry.data[CONF_SCAN_INTERVAL]
         self._raise_exceptions_on_update = entry.data.get(const.CONF_RAISE_EXCEPTION_ON_UPDATE, False)
+        self._data_from_api = {}
 
         self.api: oekofen_api.Oekofen | None = None
         self.api_lock = asyncio.Lock()
@@ -158,11 +159,13 @@ class HAOekofenEntity(object):
         return True
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
+        print("[HAOekofenEntity.async_api_update_data] called, is this the auto-update? self._raise_exceptions_on_update=", self._raise_exceptions_on_update)
         async with self.api_lock:
             try:
-                data = await self.hass.async_add_executor_job(self.update_data)
-                return data
+                self._data_from_api = await self.hass.async_add_executor_job(self.update_data)
+                return self._data_from_api
             except Exception as e:
                 if self._raise_exceptions_on_update:
                     raise e
-                return self.api._data
+                print("[HAOekofenEntity.async_api_update_data] Returning old data (self._data_from_api)")
+                return self._data_from_api

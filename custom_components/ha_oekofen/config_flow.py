@@ -97,13 +97,15 @@ class OekofenOptionsFlow(config_entries.OptionsFlow):
         print("[OekofenOptionsFlow.async_step_init] _config_entry.options=", options)
         print("[OekofenOptionsFlow.async_step_init] _config_entry.data=", data)
 
+        # we are using data (and not options) here
+
         options_schema = vol.Schema(
             {
                 vol.Required(
-                    CONF_SCAN_INTERVAL, default=options.get(CONF_SCAN_INTERVAL, oekofen_api.const.UPDATE_INTERVAL_SECONDS)
+                    CONF_SCAN_INTERVAL, default=data.get(CONF_SCAN_INTERVAL, oekofen_api.const.UPDATE_INTERVAL_SECONDS)
                 ): vol.Coerce(int),
                 vol.Optional(
-                    const.CONF_RAISE_EXCEPTION_ON_UPDATE, default=options.get(const.CONF_RAISE_EXCEPTION_ON_UPDATE, False)
+                    const.CONF_RAISE_EXCEPTION_ON_UPDATE, default=data.get(const.CONF_RAISE_EXCEPTION_ON_UPDATE, False)
                 ): vol.Coerce(bool),
             }
         )
