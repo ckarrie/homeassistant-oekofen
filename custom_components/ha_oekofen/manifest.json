@@ -5,6 +5,6 @@
   "config_flow": true,
   "iot_class": "local_polling",
   "codeowners": [],
-  "requirements": ["oekofen-api==0.0.10"],
+  "requirements": ["oekofen-api==0.0.11"],
   "version": "0.0.5"
 }
