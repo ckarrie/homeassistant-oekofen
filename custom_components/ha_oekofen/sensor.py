@@ -24,7 +24,7 @@ async def async_setup_entry(
 
     # TEMP_SENSORS_BY_DOMAIN
     for domain_name, attribute_names in const.TEMP_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [''])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 sensor_entity = OekofenHKSensorEntity(
