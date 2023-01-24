@@ -37,6 +37,10 @@ L_PUMP_BINARY_SENSORS_BY_DOMAIN = {
     'circ': ['L_pummp'],
 }
 
+PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
+    'pu': ['L_pump']
+}
+
 TEMP_SENSORS_BY_DOMAIN = {
     'hk': ['L_roomtemp_act', 'L_roomtemp_set', 'L_flowtemp_act', 'L_flowtemp_set'],
     'pu': ['L_tpo_act', 'L_tpo_set', 'L_tpm_act', 'L_tpm_set', 'L_pump_release'],
