@@ -42,6 +42,8 @@ PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
 }
 
 TEMP_SENSORS_BY_DOMAIN = {
+    'system': ['L_ambient'],
+    'weather': ['L_temp'],
     'hk': ['L_roomtemp_act', 'L_roomtemp_set', 'L_flowtemp_act', 'L_flowtemp_set'],
     'pu': ['L_tpo_act', 'L_tpo_set', 'L_tpm_act', 'L_tpm_set', 'L_pump_release'],
     'ww': ['L_temp_set', 'L_ontemp_act', 'L_offtemp_act'],
