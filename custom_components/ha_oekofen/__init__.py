@@ -50,23 +50,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data
     # await ha_client.api.update_data()
 
-    device_registry = dr.async_get(hass)
-    model = ha_client.api.get_model()
-    model_long = const.MODEL_ABBR.get(model, model)
-    device_registry.async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(const.DOMAIN, entry.unique_id)},
-        manufacturer=const.MANUFACTURER,
-        name=ha_client.api.get_name(),
-        model=model_long,
-    )
-
     async def _async_update_data():
         """Update Oekofen client via Coordinator"""
         async with async_timeout.timeout(20):
             try:
                 return await ha_client.async_api_update_data()
             except Exception as err:
+
                 raise UpdateFailed(err) from err
 
     coordinator = DataUpdateCoordinator[oekofen_api.Oekofen](
@@ -79,6 +69,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Fetch data first time
     await coordinator.async_config_entry_first_refresh()
+
+    device_registry = dr.async_get(hass)
+    model = ha_client.api.get_model()
+    model_long = const.MODEL_ABBR.get(model, model)
+    device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(const.DOMAIN, entry.unique_id)},
+        manufacturer=const.MANUFACTURER,
+        name=ha_client.api.get_name(),
+        model=model_long,
+    )
 
     hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = {
         const.KEY_OEKOFENHOMEASSISTANT: ha_client,
@@ -144,7 +145,7 @@ class HAOekofenEntity(object):
             port=self._port,
             update_interval=self._update_interval,
         )
-        asyncio.run(self.api.update_data())
+        #asyncio.run(self.api.update_data())
         return True
 
     def update_data(self):
@@ -158,5 +159,10 @@ class HAOekofenEntity(object):
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
         async with self.api_lock:
-            data = await self.hass.async_add_executor_job(self.update_data)
-            return data
+            try:
+                data = await self.hass.async_add_executor_job(self.update_data)
+                return data
+            except Exception as e:
+                if self._raise_exceptions_on_update:
+                    raise e
+                return self.api._data

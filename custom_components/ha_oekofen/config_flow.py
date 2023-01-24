@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+from typing import Any
+
+from homeassistant.data_entry_flow import FlowResult
+
 """Config flow for the Atag component."""
 import oekofen_api
 import voluptuous as vol
@@ -60,4 +66,36 @@ class OekofenConfigFlow(config_entries.ConfigFlow, domain=const.DOMAIN):
             step_id="user",
             data_schema=vol.Schema(DATA_SCHEMA),
             errors=errors if errors else {},
+        )
+
+
+class OekofenOptionsFlow(config_entries.OptionsFlow):
+    """Handle Oekofen options."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize the flux_led options flow."""
+        self._config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Configure the options."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        options = self._config_entry.options
+        options_schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_SCAN_INTERVAL, default=options.get(CONF_SCAN_INTERVAL)
+                ): vol.Coerce(int),
+                vol.Optional(
+                    options.get(const.CONF_RAISE_EXCEPTION_ON_UPDATE), default=True
+                ): vol.Coerce(bool),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="init", data_schema=options_schema, errors=errors
         )
