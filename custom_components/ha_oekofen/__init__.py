@@ -6,6 +6,7 @@ from typing import Any
 
 import async_timeout
 import oekofen_api
+import time
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     Platform,
@@ -70,6 +71,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Fetch data first time
     await coordinator.async_config_entry_first_refresh()
 
+    # Wait 2500ms
+    time.sleep(2.5)
+    sw_version = await ha_client.api.get_version()
+
+    # register device
     device_registry = dr.async_get(hass)
     model = ha_client.api.get_model()
     model_long = const.MODEL_ABBR.get(model, model)
@@ -79,6 +85,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         manufacturer=const.MANUFACTURER,
         name=ha_client.api.get_name(),
         model=model_long,
+        sw_version=sw_version
     )
 
     hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = {

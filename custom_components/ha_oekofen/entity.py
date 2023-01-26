@@ -9,7 +9,7 @@ from typing import Callable, Any
 from homeassistant.components.binary_sensor import BinarySensorEntityDescription, BinarySensorDeviceClass, BinarySensorEntity
 from homeassistant.components.sensor import SensorEntityDescription, SensorDeviceClass, RestoreSensor
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityEntityDescription, STATE_OFF, STATE_ON
-from homeassistant.const import PERCENTAGE, TEMP_CELSIUS, UnitOfTemperature, ATTR_TEMPERATURE
+from homeassistant.const import PERCENTAGE, TEMP_CELSIUS, UnitOfTemperature, ATTR_TEMPERATURE, UnitOfTime
 from homeassistant.core import callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.typing import StateType
@@ -104,6 +104,36 @@ def get_waterheater_description(domain_name, domain_index, attribute_key, attr_c
         #device_class=BinarySensorDeviceClass.POWER,
         icon="mdi:pump",
         attr_config=attr_config,
+    )
+
+
+def get_zs_description(domain_name, domain_index, attribute_key):
+    return OekofenAttributeDescription(
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+        icon="mdi:clock",
+    )
+
+
+def get_total_hour_description(domain_name, domain_index, attribute_key):
+    return OekofenAttributeDescription(
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        native_unit_of_measurement=UnitOfTime.HOURS,
+        device_class=SensorDeviceClass.DURATION,
+        icon="mdi:timeline",
+    )
+
+
+def get_total_minute_description(domain_name, domain_index, attribute_key):
+    return OekofenAttributeDescription(
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        native_unit_of_measurement=UnitOfTime.MINUTES,
+        device_class=SensorDeviceClass.DURATION,
+        icon="mdi:metronome",
     )
 
 

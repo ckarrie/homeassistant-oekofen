@@ -72,6 +72,32 @@ STATE_CHOICE_SENSORS_BY_DOMAIN = {
 
 }
 
+# Unit: EH
+PRESSURE_SENSORS_BY_DOMAIN = {
+    'pe': ['L_lowpressure', 'L_lowpressure_set']
+}
+
+# Unit: zs (0,1 seconds)
+TIME_SENSORS_BY_DOMAIN = {
+    'pe': ['L_runtimeburner', 'L_resttimeburner']
+}
+
+# Unit: %
+NON_PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
+    'pe': ['L_currentairflow', 'L_fluegas', 'L_uw_speed', 'L_uw', 'L_modulation']
+}
+
+WEIGHT_SENSORS_BY_DOMAIN = {
+    'pe': ['L_storage_fill', 'L_storage_min', 'L_storage_max', 'L_storage_popper', 'storage_fill_today', 'storage_fill_yesterday']
+}
+
+TOTAL_SENSORS_HOURS_BY_DOMAIN = {
+    'pe': ['L_runtime']
+}
+
+TOTAL_SENSORS_MINUTES_BY_DOMAIN = {
+    'pe': ['L_avg_runtime']
+}
 
 WATER_HEATER_SENSORS_OPERATION_LIST = [STATE_OFF, STATE_ECO, STATE_PERFORMANCE]
 WATER_HEATER_SENSORS_BY_DOMAIN = {
