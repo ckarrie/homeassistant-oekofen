@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Default host: {host}",
+        "data": {
+          "host": "[%key:common::config_flow::data::host%] (Required)",
+          "password": "[%key:common::config_flow::data::password%]",
+          "port": "[%key:common::config_flow::data::port%]",
+          "scan_interval": "[%key:common::config_flow::data::scan_interval%]",
+          "raise_exception_on_update": "Raise exception if update fails"
+        }
+      }
+    },
+    "error": {
+      "config": "Connection or login error: please check your configuration"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  }
+}

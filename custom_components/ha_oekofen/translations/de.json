@@ -1,0 +1,33 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Ger\u00e4t ist bereits konfiguriert"
+        },
+        "error": {
+            "config": "Verbindungs- oder Anmeldefehler: Bitte \u00fcberpr\u00fcfe deine Konfiguration"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "host": "ÖkoFEN IP Adresse",
+                    "password": "ÖkoFEN JSON Passwort",
+                    "port": "Port",
+                    "scan_interval": "Update-Intervall",
+                    "raise_exception_on_update": "Fehlermeldung beim Update auslösen"
+                },
+                "description": "Einrichtung ÖkoFEN"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "scan_interval": "Update-Interval",
+                    "raise_exception_on_update": "Fehlermeldung beim Update auslösen"
+                },
+                "description": "Optionale Einstellungen angeben"
+            }
+        }
+    }
+}
