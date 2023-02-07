@@ -91,7 +91,7 @@ NON_PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
 }
 
 NON_PUMP_BINARY_SENSORS_BY_DOMAIN = {
-    'sk': ['L_pump', 'cooling', 'mode'],
+    'sk': ['mode'],
 }
 
 WEIGHT_SENSORS_BY_DOMAIN = {
