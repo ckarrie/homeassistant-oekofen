@@ -17,7 +17,8 @@ from .entity import OekofenHKSensorEntity, \
     get_zs_description, \
     get_total_hour_description, \
     get_total_minute_description, \
-    get_weight_description, get_binary_description
+    get_weight_description, \
+    get_binary_description
 
 
 async def async_setup_entry(
