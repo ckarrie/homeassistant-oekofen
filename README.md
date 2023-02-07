@@ -1,6 +1,17 @@
 # homeassistant-oekofen
 Oekofen HomeAssistant integration
 
+# Installation
+
+- add repository `` in your HACS
+- restart HomeAssistant
+- add integration
+
+# ToDo
+
+- add `sk` domain (solar)
+- add csv log support (`http://192.168.178.222:4321/PASSWORD/log`)
+- allow user to choose domains to update (device config)
 
 ## Developement
 
