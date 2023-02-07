@@ -87,8 +87,7 @@ TIME_SENSORS_BY_DOMAIN = {
 
 # Unit: %
 NON_PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
-    'pe': ['L_currentairflow', 'L_fluegas', 'L_uw_speed', 'L_uw', 'L_modulation'],
-    'sk': ['L_pump'],
+    'pe': ['L_currentairflow', 'L_fluegas', 'L_uw_speed', 'L_uw', 'L_modulation']
 }
 
 NON_PUMP_BINARY_SENSORS_BY_DOMAIN = {
