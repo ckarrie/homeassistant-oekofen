@@ -9,7 +9,8 @@ from typing import Callable, Any
 from homeassistant.components.binary_sensor import BinarySensorEntityDescription, BinarySensorDeviceClass, BinarySensorEntity
 from homeassistant.components.sensor import SensorEntityDescription, SensorDeviceClass, RestoreSensor
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityEntityDescription, STATE_OFF, STATE_ON
-from homeassistant.const import PERCENTAGE, TEMP_CELSIUS, UnitOfTemperature, ATTR_TEMPERATURE, UnitOfTime
+from homeassistant.const import PERCENTAGE, TEMP_CELSIUS, UnitOfTemperature, ATTR_TEMPERATURE, UnitOfTime, \
+    MASS_KILOGRAMS
 from homeassistant.core import callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.typing import StateType
@@ -78,6 +79,13 @@ def get_percentage_description(domain_name, domain_index, attribute_key):
         device_class=SensorDeviceClass.POWER_FACTOR,
     )
 
+def get_weight_description(domain_name, domain_index, attribute_key):
+    return OekofenAttributeDescription(
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        native_unit_of_measurement=MASS_KILOGRAMS,
+        device_class=SensorDeviceClass.WEIGHT,
+    )
 
 def get_pump_binary_description(domain_name, domain_index, attribute_key) -> OekofenBinaryAttributeDescription:
     return OekofenBinaryAttributeDescription(
