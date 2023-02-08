@@ -17,7 +17,8 @@ from .entity import OekofenHKSensorEntity, \
     get_zs_description, \
     get_total_hour_description, \
     get_total_minute_description, \
-    get_weight_description
+    get_weight_description, \
+    get_binary_description
 
 
 async def async_setup_entry(
@@ -101,6 +102,20 @@ async def async_setup_entry(
                     coordinator=coordinator,
                     oekofen_entity=ha_oekofen,
                     entity_description=percent_descr,
+                )
+                entities.append(mod_entity)
+
+    # Non Pump binary sensors by domain
+    for domain_name, attribute_names in const.WEIGHT_SENSORS_BY_DOMAIN.items():
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        for domain_index in domain_indexes:
+            for attribute_name in attribute_names:
+                binary_descr = get_binary_description(domain_name=domain_name, domain_index=domain_index,
+                                                      attribute_key=attribute_name)
+                mod_entity = OekofenHKSensorEntity(
+                    coordinator=coordinator,
+                    oekofen_entity=ha_oekofen,
+                    entity_description=binary_descr,
                 )
                 entities.append(mod_entity)
 

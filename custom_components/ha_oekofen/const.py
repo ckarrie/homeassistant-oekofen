@@ -35,6 +35,7 @@ L_PUMP_BINARY_SENSORS_BY_DOMAIN = {
     # 'pu',  # is % not bool
     'ww': ['L_pump'],
     'circ': ['L_pummp'],
+    'sk': ['L_pump'],
 }
 
 PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
@@ -49,6 +50,7 @@ TEMP_SENSORS_BY_DOMAIN = {
     'ww': ['L_temp_set', 'L_ontemp_act', 'L_offtemp_act'],
     'circ': ['L_ret_temp', 'L_release_temp'],
     'pe': ['L_temp_act', 'L_temp_set', 'L_ext_temp', 'L_frt_temp_act', 'L_frt_temp_set', 'L_frt_temp_end', 'L_uw_release'],
+    'sk': ['L_koll_temp', 'spu_max']
 }
 
 STATE_SENSORS_BY_DOMAIN = {
@@ -56,7 +58,8 @@ STATE_SENSORS_BY_DOMAIN = {
     #'thirdparty': 'L_state',
     'pu': 'L_statetext',
     'ww': 'L_statetext',
-    'pe': 'L_statetext'
+    'pe': 'L_statetext',
+    'sk': 'L_statetext'
 }
 
 #
@@ -85,6 +88,10 @@ TIME_SENSORS_BY_DOMAIN = {
 # Unit: %
 NON_PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
     'pe': ['L_currentairflow', 'L_fluegas', 'L_uw_speed', 'L_uw', 'L_modulation']
+}
+
+NON_PUMP_BINARY_SENSORS_BY_DOMAIN = {
+    'sk': ['mode'],
 }
 
 WEIGHT_SENSORS_BY_DOMAIN = {
