@@ -49,7 +49,7 @@ async def async_setup_entry(
 
     # STATE_SENSORS_BY_DOMAIN
     for domain_name, attribute_name in const.STATE_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
         for domain_index in domain_indexes:
             sensor_entity = OekofenHKSensorEntity(
                 coordinator=coordinator,
@@ -64,7 +64,7 @@ async def async_setup_entry(
 
     # PUMP_PERCENTAGE_SENSORS_BY_DOMAIN
     for domain_name, attribute_names in const.PUMP_PERCENTAGE_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 sensor_entity = OekofenHKSensorEntity(
@@ -94,7 +94,7 @@ async def async_setup_entry(
 
     # Percentage sensors (non-pump)
     for domain_name, attribute_names in const.NON_PUMP_PERCENTAGE_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 percent_descr = get_percentage_description(domain_name=domain_name, domain_index=domain_index, attribute_key=attribute_name)
@@ -107,7 +107,7 @@ async def async_setup_entry(
 
     # Non Pump binary sensors by domain
     for domain_name, attribute_names in const.WEIGHT_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 binary_descr = get_binary_description(domain_name=domain_name, domain_index=domain_index,
@@ -121,7 +121,7 @@ async def async_setup_entry(
 
     # Weight sensors by domain
     for domain_name, attribute_names in const.WEIGHT_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 weight_descr = get_weight_description(domain_name=domain_name, domain_index=domain_index,
@@ -135,7 +135,7 @@ async def async_setup_entry(
 
     # Ten'th zs-Sensors / TIME_SENSORS_BY_DOMAIN
     for domain_name, attribute_names in const.TIME_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 zs_descr = get_zs_description(domain_name=domain_name, domain_index=domain_index, attribute_key=attribute_name)
