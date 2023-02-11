@@ -16,7 +16,7 @@ async def async_setup_entry(
 
     # Pump Sensors
     for domain_name, attribute_names in L_PUMP_BINARY_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 sensor_entity = OekofenBinarySensorEntity(
@@ -31,7 +31,7 @@ async def async_setup_entry(
                 entities.append(sensor_entity)
 
     PE_ATTRIBUTES = ['L_br', 'L_ak', 'L_not', 'L_stb']  # move to const
-    pe_domain_indexes = ha_oekofen.api.data.get(f'pe_indexes')
+    pe_domain_indexes = ha_oekofen.api.data.get(f'pe_indexes', [])
     for pe_index in pe_domain_indexes:
         for attribute_name in PE_ATTRIBUTES:
             sensor_entity = OekofenBinarySensorEntity(
