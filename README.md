@@ -1,5 +1,5 @@
 # homeassistant-oekofen
-Oekofen HomeAssistant integration
+Oekofen HomeAssistant integration via [oekofen-api](https://github.com/ckarrie/oekofen-api)
 
 # Installation
 
