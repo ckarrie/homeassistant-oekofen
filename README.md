@@ -3,7 +3,7 @@ Oekofen HomeAssistant integration
 
 # Installation
 
-- add repository `` in your HACS
+- add repository `https://github.com/ckarrie/homeassistant-oekofen` in your HACS
 - restart HomeAssistant
 - add integration
 
