@@ -10,6 +10,7 @@ import oekofen_api
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_PASSWORD, CONF_SCAN_INTERVAL
+from homeassistant.util.network import is_ipv4_address
 
 from . import const
 
@@ -53,6 +54,10 @@ class OekofenConfigFlow(config_entries.ConfigFlow, domain=const.DOMAIN):
             json_password=json_password,
             update_interval=update_interval,
         )
+
+        if not is_ipv4_address(str(host)):
+            return self.async_abort(reason="not_ipv4_address")
+
         try:
             await client.update_data()
             print("Finished oekofen_api.Oekofen client=%s" % client)
