@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Callable, Any
 
 from homeassistant.components.binary_sensor import BinarySensorEntityDescription, BinarySensorDeviceClass, BinarySensorEntity
-from homeassistant.components.sensor import SensorEntityDescription, SensorDeviceClass, RestoreSensor
+from homeassistant.components.sensor import SensorEntityDescription, SensorDeviceClass, RestoreSensor, SensorStateClass
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityEntityDescription, STATE_OFF, STATE_ON
 from homeassistant.const import PERCENTAGE, TEMP_CELSIUS, UnitOfTemperature, ATTR_TEMPERATURE, UnitOfTime, \
     MASS_KILOGRAMS
@@ -33,8 +33,14 @@ class OekofenAttributeDescription(SensorEntityDescription):
 class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
     value: Callable = lambda data: data
     index: int = 0
-    suggested_unit_of_measurement = None
-    native_unit_of_measurement = None
+
+    device_class: SensorDeviceClass | None = None
+    suggested_unit_of_measurement: str | None = None
+    last_reset: datetime | None = None
+    native_unit_of_measurement: str | None = None
+    state_class: SensorStateClass | str | None = None
+    options: list[str] | None = None
+    unit_of_measurement: None = None
 
 
 @dataclass
