@@ -72,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     # Wait 2500ms
-    time.sleep(2.5)
+    await asyncio.sleep(2.5)
     sw_version = await ha_client.api.get_version()
 
     # register device
