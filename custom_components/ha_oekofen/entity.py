@@ -33,6 +33,7 @@ class OekofenAttributeDescription(SensorEntityDescription):
 class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
     value: Callable = lambda data: data
     index: int = 0
+    suggested_unit_of_measurement = None
 
 
 @dataclass
