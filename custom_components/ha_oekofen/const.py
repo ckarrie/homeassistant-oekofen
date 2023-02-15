@@ -30,6 +30,10 @@ MODEL_ABBR = {
     'AIR': 'Pellematic Air',
 }
 
+SWITCH_IS_ON_VALUES = [1, "1", "true", True]
+TURN_SWITCH_ON = 1
+TURN_SWITCH_OFF = 0
+
 L_PUMP_BINARY_SENSORS_BY_DOMAIN = {
     'hk': ['L_pump'],
     # 'pu',  # is % not bool
@@ -119,4 +123,43 @@ WATER_HEATER_SENSORS_BY_DOMAIN = {
 }
 
 
+# Switches Entities
 
+SWITCHES_BY_DOMAIN = {
+    'ww': ['heat_once', 'use_boiler_heat'],
+    'weather': ['oekomode']
+}
+
+# Button Entites
+
+BUTTONS_BY_DOMAIN = {
+    'weather': ['refresh']
+}
+
+
+# Select Entities
+
+SELECT_BY_DOMAIN = {
+    'hk': [
+        'mode_auto',
+        #'time_prg',
+        'oekomode',
+        #'autocomfort'
+    ],
+    'ww': [
+        #'time_prg',
+        'mode_auto',
+        'mode_dhw',
+        'oekomode',
+    ],
+    'pe': [
+        'mode'
+    ]
+}
+
+
+ICONS = {
+    'ww': {
+        'heat_once': 'mdi:heat-wave'
+    }
+}

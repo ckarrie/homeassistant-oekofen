@@ -9,6 +9,7 @@ from typing import Callable, Any
 from homeassistant.components.binary_sensor import BinarySensorEntityDescription, BinarySensorDeviceClass, BinarySensorEntity
 from homeassistant.components.sensor import SensorEntityDescription, SensorDeviceClass, RestoreSensor, SensorStateClass
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityEntityDescription, STATE_OFF, STATE_ON
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import PERCENTAGE, TEMP_CELSIUS, UnitOfTemperature, ATTR_TEMPERATURE, UnitOfTime, \
     MASS_KILOGRAMS
 from homeassistant.core import callback
@@ -16,9 +17,9 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from . import HAOekofenEntity
+
+from . import HAOekofenEntity, const
 from .coordinator import HAOekofenCoordinatorEntity
-from .const import WATER_HEATER_SENSORS_OPERATION_LIST
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,12 +36,13 @@ class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
     index: int = 0
 
     device_class: SensorDeviceClass | None = None
-    suggested_unit_of_measurement: str | None = None
     last_reset: datetime | None = None
     native_unit_of_measurement: str | None = None
-    state_class: SensorStateClass | str | None = None
     options: list[str] | None = None
-    unit_of_measurement: None = None
+    state_class: SensorStateClass | str | None = None
+    suggested_display_precision: int | None = None
+    suggested_unit_of_measurement: str | None = None
+    unit_of_measurement: None = None  # Type override, use native_unit_of_measurement
     native_precision = None
 
 
@@ -50,107 +52,131 @@ class OekofenWaterHeaterAttributeDescription(WaterHeaterEntityEntityDescription)
 
 
 def get_temperature_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:thermometer')
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         native_unit_of_measurement=TEMP_CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
-        icon="mdi:thermometer",
+        icon=icon,
     )
 
 
 def get_statetext_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:text')
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=None,
         device_class=None,
-        icon="mdi:text",
+        icon=icon,
     )
 
 
 def get_pump_percent_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:pump')
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.POWER_FACTOR,
-        icon="mdi:pump",
+        icon=icon,
     )
 
 
 def get_percentage_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:percent')
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.POWER_FACTOR,
+        icon=icon,
     )
 
+
 def get_weight_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:weight-kilogram')
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         native_unit_of_measurement=MASS_KILOGRAMS,
         device_class=SensorDeviceClass.WEIGHT,
+        icon=icon,
     )
 
+
 def get_pump_binary_description(domain_name, domain_index, attribute_key) -> OekofenBinaryAttributeDescription:
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:pump')
     return OekofenBinaryAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
         device_class=BinarySensorDeviceClass.POWER,
-        icon="mdi:pump",
+        icon=icon,
     )
 
 
 def get_binary_description(domain_name, domain_index, attribute_key) -> OekofenBinaryAttributeDescription:
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:electric-switch')
     return OekofenBinaryAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         device_class=BinarySensorDeviceClass.POWER,
-        icon="mdi:electric-switch",
+        icon=icon,
     )
 
 
 def get_waterheater_description(domain_name, domain_index, attribute_key, attr_config) -> OekofenWaterHeaterAttributeDescription:
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:pump')
     return OekofenWaterHeaterAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
         #device_class=BinarySensorDeviceClass.POWER,
-        icon="mdi:pump",
+        icon=icon,
         attr_config=attr_config,
     )
 
 
 def get_zs_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:clock')
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         native_unit_of_measurement=UnitOfTime.SECONDS,
         device_class=SensorDeviceClass.DURATION,
-        icon="mdi:clock",
+        icon=icon,
     )
 
 
 def get_total_hour_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:timeline')
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         native_unit_of_measurement=UnitOfTime.HOURS,
         device_class=SensorDeviceClass.DURATION,
-        icon="mdi:timeline",
+        icon=icon,
     )
 
 
 def get_total_minute_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:metronome')
     return OekofenAttributeDescription(
         key=f'{domain_name}{domain_index}.{attribute_key}',
         name=f'{domain_name.upper()} {domain_index} {attribute_key}',
         native_unit_of_measurement=UnitOfTime.MINUTES,
         device_class=SensorDeviceClass.DURATION,
-        icon="mdi:metronome",
+        icon=icon,
+    )
+
+
+def get_switch_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:electric-switch')
+    return OekofenAttributeDescription(
+        key=f'{domain_name}{domain_index}.{attribute_key}',
+        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        icon=icon,
     )
 
 
@@ -229,10 +255,67 @@ class OekofenBinarySensorEntity(HAOekofenCoordinatorEntity, BinarySensorEntity):
         self._attr_is_on = self.entity_description.value(data)
 
 
+class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
+    entity_description = OekofenAttributeDescription
+
+    def __init__(self, coordinator, oekofen_entity, entity_description, oekofen_domain, oekofen_attribute, oekofen_domain_index):
+        super().__init__(coordinator, oekofen_entity)
+        self.entity_description = entity_description
+        self._name = f"{oekofen_entity.device_name} {entity_description.name}"
+        self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-{entity_description.index}"
+        self._value: StateType | date | datetime | Decimal = None
+        self._oekofen_domain = oekofen_domain
+        self._oekofen_attribute = oekofen_attribute
+        self._oekofen_domain_index = oekofen_domain_index
+        self._oekofen_entity = oekofen_entity
+
+    async def async_added_to_hass(self) -> None:
+        """Handle entity which will be added."""
+        await super().async_added_to_hass()
+        if self.coordinator.data is None:
+            sensor_data = await self.async_get_last_sensor_data()
+            if sensor_data is not None:
+                self._value = sensor_data.native_value
+
+    @callback
+    def async_update_device(self) -> None:
+        if self.coordinator.data is None:
+            return
+
+        data = self.coordinator.data.get(self.entity_description.key)
+        if data is None:
+            self._value = None
+            _LOGGER.debug(
+                "key '%s' not in Netgear router response '%s'",
+                self.entity_description.key,
+                data,
+            )
+            return
+
+        self._value = self.entity_description.value(data)
+
+    @property
+    def is_on(self):
+        """Return true if device is on."""
+        return self._value in const.SWITCH_IS_ON_VALUES
+
+    def _get_api_attribute(self):
+        att = self._oekofen_entity.get_attribute(domain=self._oekofen_domain, attribute=self._oekofen_attribute, domain_index=self._oekofen_domain_index)
+        return att
+
+    async def async_turn_on(self, **kwargs):
+        att = self._get_api_attribute()
+        await self._oekofen_entity.set_attribute_value(att, const.TURN_SWITCH_ON)
+
+    async def async_turn_off(self, **kwargs):
+        att = self._get_api_attribute()
+        await self._oekofen_entity.set_attribute_value(att, const.TURN_SWITCH_OFF)
+
+
 class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
     """Representation of an ATAG water heater."""
 
-    _attr_operation_list = WATER_HEATER_SENSORS_OPERATION_LIST
+    _attr_operation_list = const.WATER_HEATER_SENSORS_OPERATION_LIST
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     entity_description: OekofenWaterHeaterAttributeDescription
 
