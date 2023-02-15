@@ -41,6 +41,7 @@ class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
     state_class: SensorStateClass | str | None = None
     options: list[str] | None = None
     unit_of_measurement: None = None
+    native_precision = None
 
 
 @dataclass
