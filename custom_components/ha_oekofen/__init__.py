@@ -9,7 +9,6 @@ import oekofen_api
 import time
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    Platform,
     CONF_HOST,
     CONF_PASSWORD,
     CONF_PORT,
@@ -26,11 +25,6 @@ from homeassistant.helpers.update_coordinator import (
 from . import const
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = [
-    #Platform.WATER_HEATER,
-    Platform.SENSOR,
-    Platform.BINARY_SENSOR,
-]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -63,7 +57,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = DataUpdateCoordinator[oekofen_api.Oekofen](
         hass,
         _LOGGER,
-        name=f'{ha_client.api.get_name()} Coordinator',
+        name=f"{ha_client.api.get_name()} Coordinator",
         update_method=_async_update_data,
         update_interval=const.SCAN_INTERVAL,
     )
@@ -85,7 +79,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         manufacturer=const.MANUFACTURER,
         name=ha_client.api.get_name(),
         model=model_long,
-        sw_version=sw_version
+        sw_version=sw_version,
     )
 
     hass.data.setdefault(const.DOMAIN, {})[entry.entry_id] = {
@@ -93,14 +87,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         const.KEY_COORDINATOR: coordinator,
     }
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, const.PLATFORMS)
 
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload Atag config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, const.PLATFORMS)
 
     if unload_ok:
         hass.data[const.DOMAIN].pop(entry.entry_id)
@@ -140,7 +134,9 @@ class HAOekofenEntity(object):
         self._password = entry.data[CONF_PASSWORD]
         self._port = entry.data[CONF_PORT]
         self._update_interval = entry.data[CONF_SCAN_INTERVAL]
-        self._raise_exceptions_on_update = entry.data.get(const.CONF_RAISE_EXCEPTION_ON_UPDATE, False)
+        self._raise_exceptions_on_update = entry.data.get(
+            const.CONF_RAISE_EXCEPTION_ON_UPDATE, False
+        )
         self._data_from_api = {}
 
         self.api: oekofen_api.Oekofen | None = None
@@ -153,7 +149,7 @@ class HAOekofenEntity(object):
             port=self._port,
             update_interval=self._update_interval,
         )
-        #asyncio.run(self.api.update_data())
+        # asyncio.run(self.api.update_data())
         return True
 
     def update_data(self):
@@ -166,13 +162,20 @@ class HAOekofenEntity(object):
         return True
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
-        print("[HAOekofenEntity.async_api_update_data] called, is this the auto-update? self._raise_exceptions_on_update=", self._raise_exceptions_on_update)
+        print(
+            "[HAOekofenEntity.async_api_update_data] called, is this the auto-update? self._raise_exceptions_on_update=",
+            self._raise_exceptions_on_update,
+        )
         async with self.api_lock:
             try:
-                self._data_from_api = await self.hass.async_add_executor_job(self.update_data)
+                self._data_from_api = await self.hass.async_add_executor_job(
+                    self.update_data
+                )
                 return self._data_from_api
             except Exception as e:
                 if self._raise_exceptions_on_update:
                     raise e
-                print("[HAOekofenEntity.async_api_update_data] Returning old data (self._data_from_api)")
+                print(
+                    "[HAOekofenEntity.async_api_update_data] Returning old data (self._data_from_api)"
+                )
                 return self._data_from_api
