@@ -1,6 +1,9 @@
 # homeassistant-oekofen
 Oekofen HomeAssistant integration via [oekofen-api](https://github.com/ckarrie/oekofen-api)
 
+# Disclaimer
+**Use at own risk**
+
 # Installation
 
 - add repository `https://github.com/ckarrie/homeassistant-oekofen` in your HACS
