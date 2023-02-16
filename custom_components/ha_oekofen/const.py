@@ -11,8 +11,8 @@ DOMAIN = "ha_oekofen"
 UPDATE_INTERVAL = 20
 SCAN_INTERVAL = datetime.timedelta(seconds=UPDATE_INTERVAL)
 PLATFORMS = [
+    Platform.BINARY_SENSOR,
     Platform.SENSOR,
-    Platform.WATER_HEATER,
     Platform.SWITCH,
     # Platform.WATER_HEATER,
 ]

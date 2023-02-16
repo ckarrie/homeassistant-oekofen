@@ -6,12 +6,32 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Callable, Any
 
-from homeassistant.components.binary_sensor import BinarySensorEntityDescription, BinarySensorDeviceClass, BinarySensorEntity
-from homeassistant.components.sensor import SensorEntityDescription, SensorDeviceClass, RestoreSensor, SensorStateClass
-from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityEntityDescription, STATE_OFF, STATE_ON
+from homeassistant.components.binary_sensor import (
+    BinarySensorEntityDescription,
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
+from homeassistant.components.sensor import (
+    SensorEntityDescription,
+    SensorDeviceClass,
+    RestoreSensor,
+    SensorStateClass,
+)
+from homeassistant.components.water_heater import (
+    WaterHeaterEntity,
+    WaterHeaterEntityEntityDescription,
+    STATE_OFF,
+    STATE_ON,
+)
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.const import PERCENTAGE, TEMP_CELSIUS, UnitOfTemperature, ATTR_TEMPERATURE, UnitOfTime, \
-    MASS_KILOGRAMS
+from homeassistant.const import (
+    PERCENTAGE,
+    TEMP_CELSIUS,
+    UnitOfTemperature,
+    ATTR_TEMPERATURE,
+    UnitOfTime,
+    MASS_KILOGRAMS,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.typing import StateType
@@ -52,10 +72,10 @@ class OekofenWaterHeaterAttributeDescription(WaterHeaterEntityEntityDescription)
 
 
 def get_temperature_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:thermometer')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:thermometer")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         native_unit_of_measurement=TEMP_CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         icon=icon,
@@ -63,10 +83,10 @@ def get_temperature_description(domain_name, domain_index, attribute_key):
 
 
 def get_statetext_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:text')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:text")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=None,
         device_class=None,
@@ -75,10 +95,10 @@ def get_statetext_description(domain_name, domain_index, attribute_key):
 
 
 def get_pump_percent_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:pump')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:pump")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key} Pump",
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.POWER_FACTOR,
         icon=icon,
@@ -86,10 +106,10 @@ def get_pump_percent_description(domain_name, domain_index, attribute_key):
 
 
 def get_percentage_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:percent')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:percent")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.POWER_FACTOR,
         icon=icon,
@@ -97,52 +117,58 @@ def get_percentage_description(domain_name, domain_index, attribute_key):
 
 
 def get_weight_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:weight-kilogram')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:weight-kilogram")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         native_unit_of_measurement=MASS_KILOGRAMS,
         device_class=SensorDeviceClass.WEIGHT,
         icon=icon,
     )
 
 
-def get_pump_binary_description(domain_name, domain_index, attribute_key) -> OekofenBinaryAttributeDescription:
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:pump')
+def get_pump_binary_description(
+    domain_name, domain_index, attribute_key
+) -> OekofenBinaryAttributeDescription:
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:pump")
     return OekofenBinaryAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key} Pump",
         device_class=BinarySensorDeviceClass.POWER,
         icon=icon,
     )
 
 
-def get_binary_description(domain_name, domain_index, attribute_key) -> OekofenBinaryAttributeDescription:
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:electric-switch')
+def get_binary_description(
+    domain_name, domain_index, attribute_key
+) -> OekofenBinaryAttributeDescription:
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:electric-switch")
     return OekofenBinaryAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         device_class=BinarySensorDeviceClass.POWER,
         icon=icon,
     )
 
 
-def get_waterheater_description(domain_name, domain_index, attribute_key, attr_config) -> OekofenWaterHeaterAttributeDescription:
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:pump')
+def get_waterheater_description(
+    domain_name, domain_index, attribute_key, attr_config
+) -> OekofenWaterHeaterAttributeDescription:
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:pump")
     return OekofenWaterHeaterAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key} Pump',
-        #device_class=BinarySensorDeviceClass.POWER,
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key} Pump",
+        # device_class=BinarySensorDeviceClass.POWER,
         icon=icon,
         attr_config=attr_config,
     )
 
 
 def get_zs_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:clock')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:clock")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         native_unit_of_measurement=UnitOfTime.SECONDS,
         device_class=SensorDeviceClass.DURATION,
         icon=icon,
@@ -150,10 +176,10 @@ def get_zs_description(domain_name, domain_index, attribute_key):
 
 
 def get_total_hour_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:timeline')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:timeline")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         native_unit_of_measurement=UnitOfTime.HOURS,
         device_class=SensorDeviceClass.DURATION,
         icon=icon,
@@ -161,10 +187,10 @@ def get_total_hour_description(domain_name, domain_index, attribute_key):
 
 
 def get_total_minute_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:metronome')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:metronome")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         native_unit_of_measurement=UnitOfTime.MINUTES,
         device_class=SensorDeviceClass.DURATION,
         icon=icon,
@@ -172,10 +198,10 @@ def get_total_minute_description(domain_name, domain_index, attribute_key):
 
 
 def get_switch_description(domain_name, domain_index, attribute_key):
-    icon = const.ICONS.get(domain_name, {}).get(attribute_key, 'mdi:electric-switch')
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:electric-switch")
     return OekofenAttributeDescription(
-        key=f'{domain_name}{domain_index}.{attribute_key}',
-        name=f'{domain_name.upper()} {domain_index} {attribute_key}',
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
         icon=icon,
     )
 
@@ -184,10 +210,10 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
     entity_description: OekofenAttributeDescription
 
     def __init__(
-            self,
-            coordinator: DataUpdateCoordinator,
-            oekofen_entity: HAOekofenEntity,
-            entity_description: OekofenAttributeDescription,
+        self,
+        coordinator: DataUpdateCoordinator,
+        oekofen_entity: HAOekofenEntity,
+        entity_description: OekofenAttributeDescription,
     ) -> None:
         super().__init__(coordinator, oekofen_entity)
         self.entity_description = entity_description
@@ -196,7 +222,9 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
         self._value: StateType | date | datetime | Decimal = None
         self.async_update_device()
 
-        print(f"[OekofenHKSensorEntity] _name={self._name} _unique_id={self._unique_id}")
+        print(
+            f"[OekofenHKSensorEntity] _name={self._name} _unique_id={self._unique_id}"
+        )
 
     @property
     def native_value(self):
@@ -234,10 +262,10 @@ class OekofenBinarySensorEntity(HAOekofenCoordinatorEntity, BinarySensorEntity):
     entity_description: OekofenBinaryAttributeDescription
 
     def __init__(
-            self,
-            coordinator: DataUpdateCoordinator,
-            oekofen_entity: HAOekofenEntity,
-            entity_description: OekofenBinaryAttributeDescription
+        self,
+        coordinator: DataUpdateCoordinator,
+        oekofen_entity: HAOekofenEntity,
+        entity_description: OekofenBinaryAttributeDescription,
     ) -> None:
         super().__init__(coordinator, oekofen_entity)
         self.entity_description = entity_description
@@ -258,7 +286,15 @@ class OekofenBinarySensorEntity(HAOekofenCoordinatorEntity, BinarySensorEntity):
 class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
     entity_description = OekofenAttributeDescription
 
-    def __init__(self, coordinator, oekofen_entity, entity_description, oekofen_domain, oekofen_attribute, oekofen_domain_index):
+    def __init__(
+        self,
+        coordinator,
+        oekofen_entity,
+        entity_description,
+        oekofen_domain,
+        oekofen_attribute,
+        oekofen_domain_index,
+    ):
         super().__init__(coordinator, oekofen_entity)
         self.entity_description = entity_description
         self._name = f"{oekofen_entity.device_name} {entity_description.name}"
@@ -300,7 +336,11 @@ class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
         return self._value in const.SWITCH_IS_ON_VALUES
 
     def _get_api_attribute(self):
-        att = self._oekofen_entity.get_attribute(domain=self._oekofen_domain, attribute=self._oekofen_attribute, domain_index=self._oekofen_domain_index)
+        att = self._oekofen_entity.get_attribute(
+            domain=self._oekofen_domain,
+            attribute=self._oekofen_attribute,
+            domain_index=self._oekofen_domain_index,
+        )
         return att
 
     async def async_turn_on(self, **kwargs):
@@ -320,47 +360,56 @@ class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
     entity_description: OekofenWaterHeaterAttributeDescription
 
     def __init__(
-            self,
-            coordinator: DataUpdateCoordinator,
-            oekofen_entity: HAOekofenEntity,
-            entity_description: OekofenWaterHeaterAttributeDescription
+        self,
+        coordinator: DataUpdateCoordinator,
+        oekofen_entity: HAOekofenEntity,
+        entity_description: OekofenWaterHeaterAttributeDescription,
     ) -> None:
         super().__init__(coordinator, oekofen_entity)
         self.entity_description = entity_description
         self._name = f"{oekofen_entity.device_name} {entity_description.name}"
-        self._unique_id = f"{oekofen_entity.unique_id}-{entity_description.key}-waterheater"
+        self._unique_id = (
+            f"{oekofen_entity.unique_id}-{entity_description.key}-waterheater"
+        )
         self.async_update_device()
 
     def _get_value_from_other_key(self, attr):
-        current_operation_attr = self.entity_description.attr_config.get(attr)  # > mode_auto
-        domain, attr = self.entity_description.key.split('.')  # > hk1, temp_heat
-        new_key = f'{domain}.{current_operation_attr}'  # hk1.mode_auto
+        current_operation_attr = self.entity_description.attr_config.get(
+            attr
+        )  # > mode_auto
+        domain, attr = self.entity_description.key.split(".")  # > hk1, temp_heat
+        new_key = f"{domain}.{current_operation_attr}"  # hk1.mode_auto
         value = self.coordinator.data.get(new_key)
         return value
 
     @property
     def current_temperature(self):
         """Return the current temperature."""
-        value = self._get_value_from_other_key('current_temp')
+        value = self._get_value_from_other_key("current_temp")
         return value
 
     @property
     def current_operation(self):
         """Return current operation."""
-        value = self._get_value_from_other_key('current_operation')
+        value = self._get_value_from_other_key("current_operation")
         print("current_operation=", value)
         return STATE_ON
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
-        print("[water_heater.HAOekofenWaterHeater.async_set_temperature] with kwags %s" % kwargs)
-        if await self.coordinator.data.api.set_heating_circuit_temp(celsius=kwargs.get(ATTR_TEMPERATURE)):
+        print(
+            "[water_heater.HAOekofenWaterHeater.async_set_temperature] with kwags %s"
+            % kwargs
+        )
+        if await self.coordinator.data.api.set_heating_circuit_temp(
+            celsius=kwargs.get(ATTR_TEMPERATURE)
+        ):
             self.async_write_ha_state()
 
     @property
     def target_temperature(self):
         """Return the setpoint if water demand, otherwise return base temp (comfort level)."""
-        value = self._get_value_from_other_key('target_temp')
+        value = self._get_value_from_other_key("target_temp")
         return value
 
     @property
@@ -372,4 +421,3 @@ class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
     def min_temp(self) -> float:
         """Return the minimum temperature."""
         return 15.0
-

@@ -11,7 +11,12 @@ from homeassistant.const import ATTR_TEMPERATURE, STATE_OFF, Platform, UnitOfTem
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, KEY_OEKOFENHOMEASSISTANT, KEY_COORDINATOR, WATER_HEATER_SENSORS_BY_DOMAIN
+from .const import (
+    DOMAIN,
+    KEY_OEKOFENHOMEASSISTANT,
+    KEY_COORDINATOR,
+    WATER_HEATER_SENSORS_BY_DOMAIN,
+)
 from .entity import HAOekofenWaterHeaterEntity, get_waterheater_description
 
 
@@ -45,14 +50,18 @@ async def async_setup_entry(
     entities = []
 
     for domain_name, domain_config in WATER_HEATER_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes")
         for domain_index in domain_indexes:
-            attribute_key = domain_config.get('current_temp')
-            entity_description = get_waterheater_description(domain_name, domain_index, attribute_key, domain_config)
-            entity = HAOekofenWaterHeaterEntity(coordinator=coordinator, oekofen_entity=ha_oekofen, entity_description=entity_description)
+            attribute_key = domain_config.get("current_temp")
+            entity_description = get_waterheater_description(
+                domain_name, domain_index, attribute_key, domain_config
+            )
+            entity = HAOekofenWaterHeaterEntity(
+                coordinator=coordinator,
+                oekofen_entity=ha_oekofen,
+                entity_description=entity_description,
+            )
             entities.append(entity)
 
     async_add_entities(entities)
     print("[water_heater.async_setup_entry] done %s" % coordinator)
-
-
