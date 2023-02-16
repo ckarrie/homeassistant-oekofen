@@ -348,11 +348,13 @@ class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         att = self._get_api_attribute()
-        await self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_ON)
+        set_value = await self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_ON)
+        self._value = set_value
 
     async def async_turn_off(self, **kwargs):
         att = self._get_api_attribute()
-        await self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_OFF)
+        set_value = await self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_OFF)
+        self._value = set_value
 
 
 class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
