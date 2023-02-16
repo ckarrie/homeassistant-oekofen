@@ -302,7 +302,10 @@ class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
         self._value: StateType | date | datetime | Decimal = None
         self._oekofen_domain = oekofen_domain
         self._oekofen_attribute = oekofen_attribute
-        self._oekofen_domain_index = oekofen_domain_index
+        if oekofen_domain_index == "":
+            self._oekofen_domain_index = 1
+        else:
+            self._oekofen_domain_index = oekofen_domain_index
         self._oekofen_entity = oekofen_entity
 
     async def async_added_to_hass(self) -> None:
@@ -336,7 +339,7 @@ class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
         return self._value in const.SWITCH_IS_ON_VALUES
 
     def _get_api_attribute(self):
-        att = self._oekofen_entity.get_attribute(
+        att = self._oekofen_entity.api.get_attribute(
             domain=self._oekofen_domain,
             attribute=self._oekofen_attribute,
             domain_index=self._oekofen_domain_index,
@@ -345,11 +348,11 @@ class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         att = self._get_api_attribute()
-        await self._oekofen_entity.set_attribute_value(att, const.TURN_SWITCH_ON)
+        await self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_ON)
 
     async def async_turn_off(self, **kwargs):
         att = self._get_api_attribute()
-        await self._oekofen_entity.set_attribute_value(att, const.TURN_SWITCH_OFF)
+        await self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_OFF)
 
 
 class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
