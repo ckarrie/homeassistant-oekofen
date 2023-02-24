@@ -14,6 +14,7 @@ PLATFORMS = [
     Platform.BINARY_SENSOR,
     Platform.SENSOR,
     Platform.SWITCH,
+    Platform.BUTTON,
     # Platform.WATER_HEATER,
 ]
 KEY_COORDINATOR = "ha_oekofen_coordinator"
@@ -149,12 +150,14 @@ WATER_HEATER_SENSORS_BY_DOMAIN = {
 
 # Switches Entities
 
-SWITCHES_BY_DOMAIN = {"ww": ["heat_once", "use_boiler_heat"], "weather": ["oekomode"]}
+SWITCHES_BY_DOMAIN = {"ww": ["use_boiler_heat"], "weather": ["oekomode"]}
 
 # Button Entites
 
-BUTTONS_BY_DOMAIN = {"weather": ["refresh"]}
-
+BUTTONS_BY_DOMAIN = {
+    "weather": ["refresh"],
+    "ww": ["heat_once"],
+}
 
 # Select Entities
 

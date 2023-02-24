@@ -24,6 +24,7 @@ from homeassistant.components.water_heater import (
     STATE_ON,
 )
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.button import ButtonEntity
 from homeassistant.const import (
     PERCENTAGE,
     TEMP_CELSIUS,
@@ -33,7 +34,7 @@ from homeassistant.const import (
     MASS_KILOGRAMS,
 )
 from homeassistant.core import callback
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.entity import EntityCategory, DeviceInfo
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
@@ -206,6 +207,15 @@ def get_switch_description(domain_name, domain_index, attribute_key):
     )
 
 
+def get_button_description(domain_name, domain_index, attribute_key):
+    icon = const.ICONS.get(domain_name, {}).get(attribute_key, "mdi:electric-switch")
+    return OekofenAttributeDescription(
+        key=f"{domain_name}{domain_index}.{attribute_key}",
+        name=f"{domain_name.upper()} {domain_index} {attribute_key}",
+        icon=icon,
+    )
+
+
 class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
     entity_description: OekofenAttributeDescription
 
@@ -348,13 +358,85 @@ class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         att = self._get_api_attribute()
-        set_value = await self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_ON)
+        set_value = await self._oekofen_entity.api.set_attribute_value(
+            att, const.TURN_SWITCH_ON
+        )
         self._value = set_value
 
     async def async_turn_off(self, **kwargs):
         att = self._get_api_attribute()
-        set_value = await self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_OFF)
+        set_value = await self._oekofen_entity.api.set_attribute_value(
+            att, const.TURN_SWITCH_OFF
+        )
         self._value = set_value
+
+
+class OekofenButtonEntity(ButtonEntity):
+    entity_description = OekofenAttributeDescription
+
+    def __init__(
+        self,
+        coordinator,
+        oekofen_entity,
+        entity_description,
+        oekofen_domain,
+        oekofen_attribute,
+        oekofen_domain_index,
+    ):
+        super().__init__()
+        self.coordinator = coordinator
+        self._oekofen_entity = oekofen_entity
+        self.entity_description = entity_description
+        self._value: StateType | date | datetime | Decimal = None
+        self._oekofen_domain = oekofen_domain
+        self._oekofen_attribute = oekofen_attribute
+        self._oekofen_domain_index = oekofen_domain_index
+
+    def _get_api_attribute(self):
+        _oekofen_domain_index = self._oekofen_domain_index
+        if isinstance(_oekofen_domain_index, str) and len(_oekofen_domain_index) == 0:
+            _oekofen_domain_index = 1
+        att = self._oekofen_entity.api.get_attribute(
+            domain=self._oekofen_domain,
+            attribute=self._oekofen_attribute,
+            domain_index=_oekofen_domain_index,
+        )
+        return att
+
+    async def async_press(self) -> None:
+        att = self._get_api_attribute()
+        # very uncool part here
+        if att.domain.name == "weather" and att.key == "refresh":
+            att.choices = {0: "Off", 1: "On"}
+            att.min = 0
+            att.max = 1
+
+        try:
+            set_value = await self._oekofen_entity.api.set_attribute_value(
+                att, const.TURN_SWITCH_ON
+            )
+        except Exception as e:
+            print("Warning: ", str(e))
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique ID."""
+        if self._oekofen_domain_index:
+            return f"{self._oekofen_entity.unique_id}_{self._oekofen_domain}_{self._oekofen_attribute.lower()}"
+        else:
+            return f"{self._oekofen_entity.unique_id}_{self._oekofen_domain}_{self._oekofen_domain_index}_{self._oekofen_attribute.lower()}"
+
+    @property
+    def name(self) -> str:
+        """Return the name."""
+        return f"{self._oekofen_entity.device_name} {self._oekofen_domain.upper()}{self._oekofen_domain_index} {self._oekofen_attribute}"
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Adds Entity to Device"""
+        return DeviceInfo(
+            identifiers={(const.DOMAIN, self._oekofen_entity.unique_id)},
+        )
 
 
 class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
