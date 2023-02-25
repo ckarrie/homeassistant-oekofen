@@ -67,7 +67,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Wait 2500ms
     await asyncio.sleep(2.5)
-    sw_version = await ha_client.api.get_version()
+    sw_version = await hass.async_add_executor_job(ha_client.api.get_version)
 
     # register device
     device_registry = dr.async_get(hass)
@@ -152,8 +152,8 @@ class HAOekofenEntity(object):
         # asyncio.run(self.api.update_data())
         return True
 
-    def update_data(self):
-        return asyncio.run(self.api.update_data())
+    # def update_data(self):
+    #    return asyncio.run(self.api.update_data())
 
     async def async_setup(self) -> bool:
         async with self.api_lock:
@@ -163,13 +163,13 @@ class HAOekofenEntity(object):
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
         print(
-            "[HAOekofenEntity.async_api_update_data] called, is this the auto-update? self._raise_exceptions_on_update=",
+            "[HAOekofenEntity.async_api_update_data] calleddd, is this the auto-update? self._raise_exceptions_on_update=",
             self._raise_exceptions_on_update,
         )
         async with self.api_lock:
             try:
                 self._data_from_api = await self.hass.async_add_executor_job(
-                    self.update_data
+                    self.api.update_data
                 )
                 return self._data_from_api
             except Exception as e:

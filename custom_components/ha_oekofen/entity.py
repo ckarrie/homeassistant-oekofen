@@ -318,13 +318,13 @@ class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
             self._oekofen_domain_index = oekofen_domain_index
         self._oekofen_entity = oekofen_entity
 
-    async def async_added_to_hass(self) -> None:
-        """Handle entity which will be added."""
-        await super().async_added_to_hass()
-        if self.coordinator.data is None:
-            sensor_data = await self.async_get_last_sensor_data()
-            if sensor_data is not None:
-                self._value = sensor_data.native_value
+    # async def async_added_to_hass(self) -> None:
+    #    """Handle entity which will be added."""
+    #    await super().async_added_to_hass()
+    #    if self.coordinator.data is None:
+    #        sensor_data = await self.async_get_last_sensor_data()
+    #        if sensor_data is not None:
+    #            self._value = sensor_data.native_value
 
     @callback
     def async_update_device(self) -> None:
@@ -403,7 +403,7 @@ class OekofenButtonEntity(ButtonEntity):
         )
         return att
 
-    async def async_press(self) -> None:
+    def press(self) -> None:
         att = self._get_api_attribute()
         # very uncool part here
         if att.domain.name == "weather" and att.key == "refresh":
@@ -412,9 +412,7 @@ class OekofenButtonEntity(ButtonEntity):
             att.max = 1
 
         try:
-            set_value = await self._oekofen_entity.api.set_attribute_value(
-                att, const.TURN_SWITCH_ON
-            )
+            self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_ON)
         except Exception as e:
             print("Warning: ", str(e))
 
