@@ -9,31 +9,35 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 _LOGGER = logging.getLogger(__name__)
 
 from . import const
-from .entity import OekofenHKSensorEntity, \
-    get_temperature_description, \
-    get_statetext_description, \
-    get_percentage_description, \
-    get_pump_percent_description, \
-    get_zs_description, \
-    get_total_hour_description, \
-    get_total_minute_description, \
-    get_weight_description, \
-    get_binary_description
+from .entity import (
+    OekofenHKSensorEntity,
+    get_temperature_description,
+    get_statetext_description,
+    get_percentage_description,
+    get_pump_percent_description,
+    get_zs_description,
+    get_total_hour_description,
+    get_total_minute_description,
+    get_weight_description,
+    get_binary_description,
+)
 
 
 async def async_setup_entry(
-        hass: HomeAssistant,
-        config_entry: ConfigEntry,
-        async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Initialize sensor platform from config entry."""
     coordinator = hass.data[const.DOMAIN][config_entry.entry_id][const.KEY_COORDINATOR]
-    ha_oekofen = hass.data[const.DOMAIN][config_entry.entry_id][const.KEY_OEKOFENHOMEASSISTANT]
+    ha_oekofen = hass.data[const.DOMAIN][config_entry.entry_id][
+        const.KEY_OEKOFENHOMEASSISTANT
+    ]
     entities = []
 
     # TEMP_SENSORS_BY_DOMAIN
     for domain_name, attribute_names in const.TEMP_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [''])
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes", [""])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 sensor_entity = OekofenHKSensorEntity(
@@ -42,14 +46,14 @@ async def async_setup_entry(
                     entity_description=get_temperature_description(
                         domain_name=domain_name,
                         domain_index=domain_index,
-                        attribute_key=attribute_name
-                    )
+                        attribute_key=attribute_name,
+                    ),
                 )
                 entities.append(sensor_entity)
 
     # STATE_SENSORS_BY_DOMAIN
     for domain_name, attribute_name in const.STATE_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes", [])
         for domain_index in domain_indexes:
             sensor_entity = OekofenHKSensorEntity(
                 coordinator=coordinator,
@@ -57,14 +61,14 @@ async def async_setup_entry(
                 entity_description=get_statetext_description(
                     domain_name=domain_name,
                     domain_index=domain_index,
-                    attribute_key=attribute_name
-                )
+                    attribute_key=attribute_name,
+                ),
             )
             entities.append(sensor_entity)
 
     # PUMP_PERCENTAGE_SENSORS_BY_DOMAIN
     for domain_name, attribute_names in const.PUMP_PERCENTAGE_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes", [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
                 sensor_entity = OekofenHKSensorEntity(
@@ -73,31 +77,38 @@ async def async_setup_entry(
                     entity_description=get_pump_percent_description(
                         domain_name=domain_name,
                         domain_index=domain_index,
-                        attribute_key=attribute_name
-                    )
+                        attribute_key=attribute_name,
+                    ),
                 )
                 entities.append(sensor_entity)
 
     # Thirdparty
-    thirdparty_indexes = ha_oekofen.api.data.get(f'thirdparty_indexes', [])
+    thirdparty_indexes = ha_oekofen.api.data.get(f"thirdparty_indexes", [])
     for domain_index in thirdparty_indexes:
         sensor_entity = OekofenHKSensorEntity(
             coordinator=coordinator,
             oekofen_entity=ha_oekofen,
             entity_description=get_statetext_description(
-                domain_name='thirdparty',
+                domain_name="thirdparty",
                 domain_index=domain_index,
-                attribute_key='L_state'
-            )
+                attribute_key="L_state",
+            ),
         )
         entities.append(sensor_entity)
 
     # Percentage sensors (non-pump)
-    for domain_name, attribute_names in const.NON_PUMP_PERCENTAGE_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
+    for (
+        domain_name,
+        attribute_names,
+    ) in const.NON_PUMP_PERCENTAGE_SENSORS_BY_DOMAIN.items():
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes", [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
-                percent_descr = get_percentage_description(domain_name=domain_name, domain_index=domain_index, attribute_key=attribute_name)
+                percent_descr = get_percentage_description(
+                    domain_name=domain_name,
+                    domain_index=domain_index,
+                    attribute_key=attribute_name,
+                )
                 mod_entity = OekofenHKSensorEntity(
                     coordinator=coordinator,
                     oekofen_entity=ha_oekofen,
@@ -106,12 +117,15 @@ async def async_setup_entry(
                 entities.append(mod_entity)
 
     # Non Pump binary sensors by domain
-    for domain_name, attribute_names in const.WEIGHT_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
+    for domain_name, attribute_names in const.NON_PUMP_BINARY_SENSORS_BY_DOMAIN.items():
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes", [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
-                binary_descr = get_binary_description(domain_name=domain_name, domain_index=domain_index,
-                                                      attribute_key=attribute_name)
+                binary_descr = get_binary_description(
+                    domain_name=domain_name,
+                    domain_index=domain_index,
+                    attribute_key=attribute_name,
+                )
                 mod_entity = OekofenHKSensorEntity(
                     coordinator=coordinator,
                     oekofen_entity=ha_oekofen,
@@ -121,11 +135,14 @@ async def async_setup_entry(
 
     # Weight sensors by domain
     for domain_name, attribute_names in const.WEIGHT_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes", [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
-                weight_descr = get_weight_description(domain_name=domain_name, domain_index=domain_index,
-                                                      attribute_key=attribute_name)
+                weight_descr = get_weight_description(
+                    domain_name=domain_name,
+                    domain_index=domain_index,
+                    attribute_key=attribute_name,
+                )
                 mod_entity = OekofenHKSensorEntity(
                     coordinator=coordinator,
                     oekofen_entity=ha_oekofen,
@@ -135,10 +152,14 @@ async def async_setup_entry(
 
     # Ten'th zs-Sensors / TIME_SENSORS_BY_DOMAIN
     for domain_name, attribute_names in const.TIME_SENSORS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes', [])
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes", [])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
-                zs_descr = get_zs_description(domain_name=domain_name, domain_index=domain_index, attribute_key=attribute_name)
+                zs_descr = get_zs_description(
+                    domain_name=domain_name,
+                    domain_index=domain_index,
+                    attribute_key=attribute_name,
+                )
                 mod_entity = OekofenHKSensorEntity(
                     coordinator=coordinator,
                     oekofen_entity=ha_oekofen,
@@ -147,10 +168,14 @@ async def async_setup_entry(
                 entities.append(mod_entity)
 
     for domain_name, attribute_names in const.TOTAL_SENSORS_HOURS_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes")
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
-                hour_descr = get_total_hour_description(domain_name=domain_name, domain_index=domain_index, attribute_key=attribute_name)
+                hour_descr = get_total_hour_description(
+                    domain_name=domain_name,
+                    domain_index=domain_index,
+                    attribute_key=attribute_name,
+                )
                 mod_entity = OekofenHKSensorEntity(
                     coordinator=coordinator,
                     oekofen_entity=ha_oekofen,
@@ -159,10 +184,14 @@ async def async_setup_entry(
                 entities.append(mod_entity)
 
     for domain_name, attribute_names in const.TOTAL_SENSORS_MINUTES_BY_DOMAIN.items():
-        domain_indexes = ha_oekofen.api.data.get(f'{domain_name}_indexes')
+        domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes")
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
-                min_descr = get_total_minute_description(domain_name=domain_name, domain_index=domain_index, attribute_key=attribute_name)
+                min_descr = get_total_minute_description(
+                    domain_name=domain_name,
+                    domain_index=domain_index,
+                    attribute_key=attribute_name,
+                )
                 mod_entity = OekofenHKSensorEntity(
                     coordinator=coordinator,
                     oekofen_entity=ha_oekofen,
