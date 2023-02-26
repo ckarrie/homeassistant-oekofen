@@ -49,10 +49,13 @@ L_PUMP_BINARY_SENSORS_BY_DOMAIN = {
     # 'pu',  # is % not bool
     "ww": ["L_pump"],
     "circ": ["L_pummp"],
-    "sk": ["L_pump"],
+    # "sk": ["L_pump"],  # seems to be percentage
 }
 
-PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {"pu": ["L_pump"]}
+PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
+    "pu": ["L_pump"],
+    "sk": ["L_pump"],
+}
 
 TEMP_SENSORS_BY_DOMAIN = {
     "system": ["L_ambient"],
@@ -70,7 +73,8 @@ TEMP_SENSORS_BY_DOMAIN = {
         "L_frt_temp_end",
         "L_uw_release",
     ],
-    "sk": ["L_koll_temp", "spu_max"],
+    "sk": ["L_koll_temp", "spu_max", "L_spu"],
+
 }
 
 STATE_SENSORS_BY_DOMAIN = {
