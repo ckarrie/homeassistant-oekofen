@@ -21,9 +21,7 @@ DATA_SCHEMA = {
     vol.Required(
         CONF_SCAN_INTERVAL, default=oekofen_api.const.UPDATE_INTERVAL_SECONDS
     ): vol.Coerce(int),
-    vol.Optional(
-        const.CONF_RAISE_EXCEPTION_ON_UPDATE, default=True
-    ): vol.Coerce(bool),
+    vol.Optional(const.CONF_RAISE_EXCEPTION_ON_UPDATE, default=True): vol.Coerce(bool),
 }
 
 
@@ -34,7 +32,9 @@ class OekofenConfigFlow(config_entries.ConfigFlow, domain=const.DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> OekofenOptionsFlow:
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> OekofenOptionsFlow:
         """Get the options flow for the Flux LED component."""
         return OekofenOptionsFlow(config_entry)
 
@@ -54,17 +54,17 @@ class OekofenConfigFlow(config_entries.ConfigFlow, domain=const.DOMAIN):
             json_password=json_password,
             update_interval=update_interval,
         )
-
         if not is_ipv4_address(str(host)):
             return self.async_abort(reason="not_ipv4_address")
 
         try:
-            await client.update_data()
-            print("Finished oekofen_api.Oekofen client=%s" % client)
+            await self.hass.async_add_executor_job(client.update_data)
+            # print("Finished oekofen_api.Oekofen client=%s" % client)
         except Exception as ex:
             return await self._show_form({"base": str(ex)})
 
-        await self.async_set_unique_id(client.get_uid())
+        client_uid = client.get_uid()
+        await self.async_set_unique_id(client_uid)
         self._abort_if_unique_id_configured(updates=user_input)
 
         model = client.get_model()
@@ -107,10 +107,14 @@ class OekofenOptionsFlow(config_entries.OptionsFlow):
         options_schema = vol.Schema(
             {
                 vol.Required(
-                    CONF_SCAN_INTERVAL, default=data.get(CONF_SCAN_INTERVAL, oekofen_api.const.UPDATE_INTERVAL_SECONDS)
+                    CONF_SCAN_INTERVAL,
+                    default=data.get(
+                        CONF_SCAN_INTERVAL, oekofen_api.const.UPDATE_INTERVAL_SECONDS
+                    ),
                 ): vol.Coerce(int),
                 vol.Optional(
-                    const.CONF_RAISE_EXCEPTION_ON_UPDATE, default=data.get(const.CONF_RAISE_EXCEPTION_ON_UPDATE, False)
+                    const.CONF_RAISE_EXCEPTION_ON_UPDATE,
+                    default=data.get(const.CONF_RAISE_EXCEPTION_ON_UPDATE, False),
                 ): vol.Coerce(bool),
             }
         )
