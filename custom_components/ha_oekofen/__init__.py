@@ -57,7 +57,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = DataUpdateCoordinator[oekofen_api.Oekofen](
         hass,
         _LOGGER,
-        name=f"{ha_client.api.get_name()} Coordinator",
+        name=f"{ha_client.api.get_name()} CoordinatorLogger",
         update_method=_async_update_data,
         update_interval=const.SCAN_INTERVAL,
     )
