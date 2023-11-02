@@ -15,6 +15,8 @@ Oekofen HomeAssistant integration via [oekofen-api](https://github.com/ckarrie/o
 - add `sk` domain (solar)
 - add csv log support (`http://192.168.178.222:4321/PASSWORD/log`)
 - allow user to choose domains to update (device config)
+- implement additional sensors provided by Ökofen Cloud (i.e. Estrichprogramm, Heizkurve, etc)
+- add Installateur Code (Codeebene) sensor, see [#12](https://github.com/ckarrie/homeassistant-oekofen/issues/12)
 
 ## Developement
 
