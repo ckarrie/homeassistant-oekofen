@@ -85,10 +85,12 @@ async def async_setup_entry(
     # Thirdparty
     thirdparty_indexes = ha_oekofen.api.data.get(f"thirdparty_indexes", [])
     for domain_index in thirdparty_indexes:
+        extra_attributes = ha_oekofen.api.get_attribute(domain='thirdparty', domain_index=domain_index, attribute='L_state').attributes
         sensor_entity = OekofenHKSensorEntity(
             coordinator=coordinator,
             oekofen_entity=ha_oekofen,
-            entity_description=get_statetext_description(
+            #entity_description=get_statetext_description(
+            entity_description=get_temperature_description(
                 domain_name="thirdparty",
                 domain_index=domain_index,
                 attribute_key="L_state",
@@ -198,6 +200,20 @@ async def async_setup_entry(
                     entity_description=min_descr,
                 )
                 entities.append(mod_entity)
+
+    # Installateur Code Sensor
+    ics_descr = get_statetext_description(
+        domain_name='meta',
+        domain_index="",
+        attribute_key='installateur_code'
+    )
+    ics_descr.entity_registry_enabled_default = False
+    ics_entity = OekofenHKSensorEntity(
+        coordinator=coordinator,
+        oekofen_entity=ha_oekofen,
+        entity_description=ics_descr
+    )
+    entities.append(ics_entity)
 
     # add to Homeassistant
     async_add_entities(entities)

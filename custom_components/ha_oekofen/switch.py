@@ -1,5 +1,9 @@
-from .entity import get_switch_description, OekofenSwitchEntity
+import logging
+
 from . import const
+from .entity import get_switch_description, OekofenSwitchEntity
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -27,6 +31,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     oekofen_domain_index=domain_index,
                 )
                 entities.append(switch_entity)
+                _LOGGER.debug("Added Switch entitiy %s", switch_entity)
 
-    print("Added Switch entities", entities)
     async_add_entities(entities)

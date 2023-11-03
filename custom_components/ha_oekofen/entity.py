@@ -47,12 +47,20 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclass
 class OekofenAttributeDescription(SensorEntityDescription):
+    key: str = None
+    name: str = None
+    icon: str = None
+    entity_category: str | None = None
     value: Callable = lambda data: data
     index: int = 0
 
 
 @dataclass
 class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
+    key: str = None
+    name: str = None
+    icon: str = None
+    entity_category: str | None = None
     value: Callable = lambda data: data
     index: int = 0
 
@@ -232,7 +240,7 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
         self._value: StateType | date | datetime | Decimal = None
         self.async_update_device()
 
-        print(
+        _LOGGER.debug(
             f"[OekofenHKSensorEntity] _name={self._name} _unique_id={self._unique_id}"
         )
 
@@ -266,6 +274,25 @@ class OekofenHKSensorEntity(HAOekofenCoordinatorEntity, RestoreSensor):
             return
 
         self._value = self.entity_description.value(data)
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        key = self.entity_description.key
+        domain, attribute = key.split('.')
+        d_index = 0
+        if domain[-1].isdigit():
+            d_index = int(domain[-1])
+            domain = domain[0:-1]
+        oekofen_att = self._oekofen_entity.api.get_attribute(domain=domain, domain_index=d_index, attribute=attribute)
+        if oekofen_att:
+            return oekofen_att.attributes
+        ignored_keys = const.IGNORE_WARNINGS_FOR_ATTRIBUTES
+        logger_text = f"No Oekofen.Attribute found for key={key}"
+        if key in ignored_keys:
+            _LOGGER.debug(logger_text)
+        else:
+            _LOGGER.warning(logger_text)
 
 
 class OekofenBinarySensorEntity(HAOekofenCoordinatorEntity, BinarySensorEntity):
@@ -325,6 +352,9 @@ class OekofenSwitchEntity(HAOekofenCoordinatorEntity, SwitchEntity):
     #        sensor_data = await self.async_get_last_sensor_data()
     #        if sensor_data is not None:
     #            self._value = sensor_data.native_value
+
+    def __repr__(self):
+        return f"<OekofenSwitchEntity unique_id={self._unique_id}>"
 
     @callback
     def async_update_device(self) -> None:
@@ -392,6 +422,9 @@ class OekofenButtonEntity(ButtonEntity):
         self._oekofen_attribute = oekofen_attribute
         self._oekofen_domain_index = oekofen_domain_index
 
+    def __repr__(self):
+        return f"<OekofenButtonEntity key={self._oekofen_domain}{self._oekofen_domain_index}.{self._oekofen_attribute}>"
+
     def _get_api_attribute(self):
         _oekofen_domain_index = self._oekofen_domain_index
         if isinstance(_oekofen_domain_index, str) and len(_oekofen_domain_index) == 0:
@@ -414,7 +447,7 @@ class OekofenButtonEntity(ButtonEntity):
         try:
             self._oekofen_entity.api.set_attribute_value(att, const.TURN_SWITCH_ON)
         except Exception as e:
-            print("Warning: ", str(e))
+            _LOGGER.error("[OekofenButtonEntity.press] Error on api.set_attribute_value: %s", str(e))
 
     @property
     def unique_id(self) -> str:
@@ -477,15 +510,12 @@ class HAOekofenWaterHeaterEntity(HAOekofenCoordinatorEntity, WaterHeaterEntity):
     def current_operation(self):
         """Return current operation."""
         value = self._get_value_from_other_key("current_operation")
-        print("current_operation=", value)
+        _LOGGER.info("[HAOekofenWaterHeaterEntity.current_operation] current_value=%s", value)
         return STATE_ON
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
-        print(
-            "[water_heater.HAOekofenWaterHeater.async_set_temperature] with kwags %s"
-            % kwargs
-        )
+        _LOGGER.debug("[HAOekofenWaterHeaterEntity.async_set_temperature] with kwags %s", kwargs)
         if await self.coordinator.data.api.set_heating_circuit_temp(
             celsius=kwargs.get(ATTR_TEMPERATURE)
         ):

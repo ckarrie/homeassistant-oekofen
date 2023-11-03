@@ -52,6 +52,12 @@ L_PUMP_BINARY_SENSORS_BY_DOMAIN = {
     # "sk": ["L_pump"],  # seems to be percentage
 }
 
+IGNORE_WARNINGS_FOR_ATTRIBUTES = [
+    'system.L_ambient',
+    'weather.L_temp',
+    'meta.installateur_code'
+]
+
 PUMP_PERCENTAGE_SENSORS_BY_DOMAIN = {
     "pu": ["L_pump"],
     "sk": ["L_pump"],

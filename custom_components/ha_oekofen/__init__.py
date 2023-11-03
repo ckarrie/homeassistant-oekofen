@@ -162,10 +162,7 @@ class HAOekofenEntity(object):
         return True
 
     async def async_api_update_data(self) -> dict[str, Any] | None:
-        print(
-            "[HAOekofenEntity.async_api_update_data] calleddd, is this the auto-update? self._raise_exceptions_on_update=",
-            self._raise_exceptions_on_update,
-        )
+        _LOGGER.debug("[HAOekofenEntity.async_api_update_data] calleddd, is this the auto-update? self._raise_exceptions_on_update=%s", self._raise_exceptions_on_update)
         async with self.api_lock:
             try:
                 self._data_from_api = await self.hass.async_add_executor_job(
@@ -175,7 +172,5 @@ class HAOekofenEntity(object):
             except Exception as e:
                 if self._raise_exceptions_on_update:
                     raise e
-                print(
-                    "[HAOekofenEntity.async_api_update_data] Returning old data (self._data_from_api)"
-                )
+                _LOGGER.debug("[HAOekofenEntity.async_api_update_data] Returning old data (self._data_from_api)")
                 return self._data_from_api

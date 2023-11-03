@@ -1,5 +1,9 @@
-from .entity import get_button_description, OekofenButtonEntity
+import logging
+
 from . import const
+from .entity import get_button_description, OekofenButtonEntity
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -13,7 +17,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         domain_indexes = ha_oekofen.api.data.get(f"{domain_name}_indexes", [""])
         for domain_index in domain_indexes:
             for attribute_name in attribute_names:
-                switch_entity = OekofenButtonEntity(
+                button_entity = OekofenButtonEntity(
                     coordinator=coordinator,
                     oekofen_entity=ha_oekofen,
                     entity_description=get_button_description(
@@ -25,6 +29,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     oekofen_attribute=attribute_name,
                     oekofen_domain_index=domain_index,
                 )
-                entities.append(switch_entity)
-    print("Added Button entities", entities)
+                entities.append(button_entity)
+                _LOGGER.debug("Added Button entitiy %s", button_entity)
     async_add_entities(entities)
