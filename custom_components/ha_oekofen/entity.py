@@ -19,7 +19,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.components.water_heater import (
     WaterHeaterEntity,
-    WaterHeaterEntityEntityDescription,
+    WaterHeaterEntityDescription,
     STATE_OFF,
     STATE_ON,
 )
@@ -76,7 +76,7 @@ class OekofenBinaryAttributeDescription(BinarySensorEntityDescription):
 
 
 @dataclass
-class OekofenWaterHeaterAttributeDescription(WaterHeaterEntityEntityDescription):
+class OekofenWaterHeaterAttributeDescription(WaterHeaterEntityDescription):
     attr_config: dict = None
 
 
